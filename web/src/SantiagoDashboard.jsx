@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { C, shadow, shadowHover } from "./theme.js";
 
 // ─── URL del data.json generado por el pipeline (repo público, rama main) ───
 const DATA_URL = "https://raw.githubusercontent.com/yocastros/worldofestadistiques/main/pipeline/output/data.json";
@@ -83,14 +84,7 @@ const EXPANSION = [
   { l: "L9", t: "Cal y Canto → La Pintana", d: "19 estaciones · 27 km · primer tramo 2030", c: "#10B981" },
 ];
 
-// ─── Paleta ──────────────────────────────────────────────────────────────────
-const C = {
-  bg: "#F7F9FC", card: "#FFFFFF", ink: "#1E293B", muted: "#64748B",
-  faint: "#94A3B8", line: "#E8EDF4", blue: "#2563EB", green: "#10B981",
-  amber: "#F59E0B", red: "#EF4444", violet: "#7C3AED", cyan: "#06B6D4",
-};
-const shadow = "0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.04)";
-const shadowHover = "0 12px 28px rgba(16,24,40,.12)";
+// ─── Estilos de texto reutilizados ──────────────────────────────────────────
 const txt = {
   detailLead: { fontSize: ".85rem", color: C.muted, lineHeight: 1.65, marginBottom: 18, maxWidth: 720 },
 };
@@ -384,7 +378,7 @@ function HeroKpi({ value, unit, label, accent, onClick }) {
 }
 
 // ─── APP ─────────────────────────────────────────────────────────────────────
-export default function GTFSExplorer() {
+export default function SantiagoDashboard({ onBack }) {
   const [data, setData] = useState(null);
   const [src, setSrc] = useState("demo");
   const [open, setOpen] = useState(null);
@@ -420,6 +414,11 @@ export default function GTFSExplorer() {
       {/* HEADER */}
       <header style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(247,249,252,.85)", backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.line}` }}>
         <div style={{ maxWidth: 1080, margin: "0 auto", padding: "14px 24px", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <button onClick={onBack} style={{
+            border: `1px solid ${C.line}`, background: C.card, color: C.muted, cursor: "pointer",
+            borderRadius: 999, padding: "5px 12px", fontSize: ".74rem", fontWeight: 600, fontFamily: "inherit",
+            display: "inline-flex", alignItems: "center", gap: 5,
+          }}>← Mundo de Estadísticas</button>
           <strong style={{ fontSize: ".95rem", fontWeight: 800, marginRight: "auto" }}>
             Santiago <span style={{ color: C.blue }}>en movimiento</span>
           </strong>
