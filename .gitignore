@@ -1,3 +1,7 @@
+# Node / Vite (frontend)
+node_modules/
+web/dist/
+
 # Python
 __pycache__/
 *.py[cod]
