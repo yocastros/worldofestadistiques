@@ -493,7 +493,7 @@ export default function GTFSExplorer() {
         <div style={{ borderTop: `1px solid ${C.line}`, paddingTop: 20, fontSize: ".72rem", color: C.faint, lineHeight: 1.8 }}>
           <strong style={{ color: C.muted }}>Fuentes:</strong> INE (Censo 2024, boletín mensual de Metro) · DTPM / Red Movilidad (GTFS {data.gtfs_version}, tarifas) ·
           Metro de Santiago (Memoria 2025) · CEDEUS (Encuesta de Movilidad 2024) · CONASET (siniestralidad 2024) · Panel de Expertos del Transporte Público.<br />
-          Datos de frecuencia: programados según GTFS, no en tiempo real. Pipeline automático en GitHub Actions (actualización semanal).
+          Datos de frecuencia: programados según GTFS, no en tiempo real.
         </div>
       </footer>
     </div>
