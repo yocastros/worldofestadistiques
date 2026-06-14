@@ -413,7 +413,7 @@ export default function SantiagoDashboard({ onBack }) {
     <div style={{ minHeight: "100vh", background: C.bg, color: C.ink }}>
       {/* HEADER */}
       <header style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(247,249,252,.85)", backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.line}` }}>
-        <div style={{ maxWidth: 1080, margin: "0 auto", padding: "14px 24px", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "14px 24px", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <button onClick={onBack} style={{
             border: `1px solid ${C.line}`, background: C.card, color: C.muted, cursor: "pointer",
             borderRadius: 999, padding: "5px 12px", fontSize: ".74rem", fontWeight: 600, fontFamily: "inherit",
@@ -430,14 +430,14 @@ export default function SantiagoDashboard({ onBack }) {
       </header>
 
       {/* HERO */}
-      <section style={{ maxWidth: 1080, margin: "0 auto", padding: "48px 24px 12px" }}>
+      <section style={{ maxWidth: 1280, margin: "0 auto", padding: "48px 24px 12px" }}>
         <div style={{ fontSize: ".74rem", fontWeight: 600, color: C.blue, textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 14 }}>
           El transporte público de Santiago en datos
         </div>
-        <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.4rem)", fontWeight: 900, lineHeight: 1.05, letterSpacing: "-.03em", maxWidth: 720 }}>
+        <h1 style={{ fontSize: "clamp(2.2rem, 5.5vw, 3.9rem)", fontWeight: 900, lineHeight: 1.04, letterSpacing: "-.03em", maxWidth: 940 }}>
           Cómo se mueve la capital, <span style={{ color: C.blue }}>con datos abiertos</span>
         </h1>
-        <p style={{ fontSize: "1.05rem", color: C.muted, maxWidth: 580, marginTop: 18, lineHeight: 1.6 }}>
+        <p style={{ fontSize: "1.15rem", color: C.muted, maxWidth: 760, marginTop: 20, lineHeight: 1.6 }}>
           Más de 5 millones de viajes al día. Explora las cifras clave del Metro, los buses RED y la movilidad —
           haz clic en cualquier dato para profundizar.
         </p>
@@ -452,7 +452,7 @@ export default function SantiagoDashboard({ onBack }) {
       </section>
 
       {/* SECCIONES DRILL-DOWN */}
-      <section ref={sectionsRef} style={{ maxWidth: 1080, margin: "0 auto", padding: "28px 24px 16px" }}>
+      <section ref={sectionsRef} style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px 16px" }}>
         <div style={{ fontSize: ".74rem", fontWeight: 600, color: C.faint, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 16 }}>
           Explora los datos
         </div>
@@ -488,7 +488,7 @@ export default function SantiagoDashboard({ onBack }) {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ maxWidth: 1080, margin: "0 auto", padding: "32px 24px 56px" }}>
+      <footer style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px 56px" }}>
         <div style={{ borderTop: `1px solid ${C.line}`, paddingTop: 20, fontSize: ".72rem", color: C.faint, lineHeight: 1.8 }}>
           <strong style={{ color: C.muted }}>Fuentes:</strong> INE (Censo 2024, boletín mensual de Metro) · DTPM / Red Movilidad (GTFS {data.gtfs_version}, tarifas) ·
           Metro de Santiago (Memoria 2025) · CEDEUS (Encuesta de Movilidad 2024) · CONASET (siniestralidad 2024) · Panel de Expertos del Transporte Público.<br />
