@@ -1,3 +1,7 @@
+# Claude Code (memoria y config local, nunca se versiona)
+.claude/
+memory/
+
 # Node / Vite (frontend)
 node_modules/
 web/dist/
