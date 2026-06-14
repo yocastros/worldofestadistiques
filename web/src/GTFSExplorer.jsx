@@ -1,11 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
-// ─── URL del data.json generado por el pipeline ────────────────────────────
-// URL raw del data.json en el repositorio (repo público, rama main).
-const DATA_URL = "https://raw.githubusercontent.com/yocastros/worldofestadistiques/main/pipeline/output/data.json"; // null = usar solo datos de demostración (fallback)
+// ─── URL del data.json generado por el pipeline (repo público, rama main) ───
+const DATA_URL = "https://raw.githubusercontent.com/yocastros/worldofestadistiques/main/pipeline/output/data.json";
 
-// ─── DATOS DE DEMOSTRACIÓN (fallback cuando DATA_URL es null o falla) ──────
-// Estos datos son el output real del pipeline ejecutado el 14/06/2026
+// ─── Datos de demostración (fallback si el fetch falla) ─────────────────────
 const DEMO_DATA = {
   gtfs_version: "V149.20251206",
   gtfs_start: "20251206",
@@ -15,214 +13,125 @@ const DEMO_DATA = {
   paradas_total: 13054,
   generado_en: "2026-06-14T08:06:53Z",
   metro_lines: [
-    { id:"L1",  nombre:"Línea 1 (San Pablo - Los Dominicos)",               punta_min:3.9,  color:"#C8102E" },
-    { id:"L2",  nombre:"Línea 2 (Vespucio Norte - Hospital El Pino)",       punta_min:6.2,  color:"#F5A800" },
-    { id:"L3",  nombre:"Línea 3 (Plaza Quilicura - F. Castillo Velasco)",   punta_min:6.7,  color:"#8C6239" },
-    { id:"L4",  nombre:"Línea 4 (Tobalaba - Plaza de Puente Alto)",         punta_min:7.5,  color:"#1B9AD1" },
-    { id:"L4A", nombre:"Línea 4A (La Cisterna - Vicuña Mackenna)",          punta_min:5.5,  color:"#1B9AD1" },
-    { id:"L5",  nombre:"Línea 5 (Plaza de Maipú - Vicente Valdés)",         punta_min:6.3,  color:"#00A550" },
-    { id:"L6",  nombre:"Línea 6 (Cerrillos - Los Leones)",                  punta_min:7.5,  color:"#9E1C72" },
+    { id: "L1", nombre: "Línea 1 (San Pablo - Los Dominicos)", punta_min: 3.9, color: "#C8102E" },
+    { id: "L2", nombre: "Línea 2 (Vespucio Norte - Hospital El Pino)", punta_min: 5.5, color: "#F2A900" },
+    { id: "L3", nombre: "Línea 3 (Plaza Quilicura - F. Castillo Velasco)", punta_min: 5.5, color: "#703F2A" },
+    { id: "L4", nombre: "Línea 4 (Tobalaba - Plaza de Puente Alto)", punta_min: 6.1, color: "#151F6D" },
+    { id: "L4A", nombre: "Línea 4A (La Cisterna - Vicuña Mackenna)", punta_min: 5.5, color: "#0072CE" },
+    { id: "L5", nombre: "Línea 5 (Plaza de Maipú - Vicente Valdés)", punta_min: 5.5, color: "#00965E" },
+    { id: "L6", nombre: "Línea 6 (Cerrillos - Los Leones)", punta_min: 6.3, color: "#8E3A80" },
   ],
   periodos_bus: [
-    { periodo:"Madrugada", horario:"05:00–07:00", avg:16.8, mediana:15.0, n:2905  },
-    { periodo:"Punta AM",  horario:"07:00–09:00", avg:16.2, mediana:13.2, n:1221  },
-    { periodo:"Valle",     horario:"09:00–18:00", avg:14.6, mediana:12.5, n:4626  },
-    { periodo:"Punta PM",  horario:"18:00–20:00", avg:16.6, mediana:15.0, n:1770  },
-    { periodo:"Nocturno",  horario:"20:00–23:30", avg:23.1, mediana:20.0, n:2362  },
+    { periodo: "Madrugada", horario: "05:00–07:00", avg: 16.8, mediana: 15.0, n: 2905 },
+    { periodo: "Punta AM", horario: "07:00–09:00", avg: 16.2, mediana: 13.2, n: 1221 },
+    { periodo: "Valle", horario: "09:00–18:00", avg: 14.6, mediana: 12.5, n: 4626 },
+    { periodo: "Punta PM", horario: "18:00–20:00", avg: 16.6, mediana: 15.0, n: 1770 },
+    { periodo: "Nocturno", horario: "20:00–23:30", avg: 23.1, mediana: 20.0, n: 2362 },
   ],
   top_rutas: [
-    { id:"211c", nombre:"La Cisterna → San Bernardo",      freq:5.3, tiene_metro:true  },
-    { id:"C10e", nombre:"Tobalaba → Camino Juan Pablo II", freq:5.3, tiene_metro:true  },
-    { id:"203c", nombre:"La Pintana → La Granja",          freq:6.0, tiene_metro:false },
-    { id:"C20",  nombre:"Escuela Militar → Parque Arauco", freq:6.3, tiene_metro:true  },
-    { id:"208c", nombre:"Huechuraba → Zapadores",          freq:6.4, tiene_metro:true  },
-    { id:"203e", nombre:"Centro → La Pintana",             freq:7.0, tiene_metro:false },
-    { id:"C14",  nombre:"Escuela Militar → Los Trapenses", freq:7.7, tiene_metro:true  },
-    { id:"104",  nombre:"Providencia → Camilo Henríquez",  freq:7.8, tiene_metro:false },
-    { id:"425",  nombre:"Rigoberto Jara → Lo Hermida",     freq:7.9, tiene_metro:false },
-    { id:"I09",  nombre:"Rinconada → U. de Chile",         freq:8.0, tiene_metro:true  },
+    { id: "211c", nombre: "(M) La Cisterna - San Bernardo", freq: 5.3, tiene_metro: true },
+    { id: "C10e", nombre: "(M) Tobalaba - Camino Juan Pablo II", freq: 5.3, tiene_metro: true },
+    { id: "203c", nombre: "La Pintana - La Granja", freq: 6.0, tiene_metro: false },
+    { id: "C20", nombre: "(M) Escuela Militar - Parque Arauco", freq: 6.3, tiene_metro: true },
+    { id: "208c", nombre: "Huechuraba - (M) Zapadores", freq: 6.4, tiene_metro: false },
+    { id: "203e", nombre: "Centro - La Pintana", freq: 7.0, tiene_metro: false },
+    { id: "C14", nombre: "(M) Escuela Militar - Los Trapenses", freq: 7.7, tiene_metro: true },
+    { id: "104", nombre: "Providencia - Camilo Henríquez", freq: 7.8, tiene_metro: false },
+    { id: "425", nombre: "Rigoberto Jara - Lo Hermida", freq: 7.9, tiene_metro: false },
+    { id: "I09", nombre: "Rinconada - (M) U. de Chile", freq: 8.0, tiene_metro: false },
   ],
   serie_metro: [
-    {mes:"Ene 2024",m:48.2},{mes:"Feb 2024",m:45.1},{mes:"Mar 2024",m:52.3},
-    {mes:"Abr 2024",m:51.0},{mes:"May 2024",m:53.4},{mes:"Jun 2024",m:52.1},
-    {mes:"Jul 2024",m:50.8},{mes:"Ago 2024",m:53.9},{mes:"Sep 2024",m:54.2},
-    {mes:"Oct 2024",m:55.8},{mes:"Nov 2024",m:56.9},{mes:"Dic 2024",m:51.3},
-    {mes:"Ene 2025",m:50.1},{mes:"Feb 2025",m:47.8},{mes:"Mar 2025",m:55.2},
-    {mes:"Abr 2025",m:54.6},{mes:"May 2025",m:57.1},{mes:"Jun 2025",m:55.9},
-    {mes:"Jul 2025",m:53.4},{mes:"Ago 2025",m:56.3},{mes:"Sep 2025",m:57.0},
-    {mes:"Oct 2025",m:62.2},{mes:"Nov 2025",m:57.7},
+    { mes: "Ene 2024", m: 48.2 }, { mes: "Feb 2024", m: 45.1 }, { mes: "Mar 2024", m: 52.3 },
+    { mes: "Abr 2024", m: 51.0 }, { mes: "May 2024", m: 53.4 }, { mes: "Jun 2024", m: 52.1 },
+    { mes: "Jul 2024", m: 50.8 }, { mes: "Ago 2024", m: 53.9 }, { mes: "Sep 2024", m: 54.2 },
+    { mes: "Oct 2024", m: 55.8 }, { mes: "Nov 2024", m: 56.9 }, { mes: "Dic 2024", m: 51.3 },
+    { mes: "Ene 2025", m: 50.1 }, { mes: "Feb 2025", m: 47.8 }, { mes: "Mar 2025", m: 55.2 },
+    { mes: "Abr 2025", m: 54.6 }, { mes: "May 2025", m: 57.1 }, { mes: "Jun 2025", m: 55.9 },
+    { mes: "Jul 2025", m: 53.4 }, { mes: "Ago 2025", m: 56.3 }, { mes: "Sep 2025", m: 57.0 },
+    { mes: "Oct 2025", m: 62.2 }, { mes: "Nov 2025", m: 57.7 },
   ],
 };
 
-// ─── UI helpers ────────────────────────────────────────────────────────────
-const mono = { fontFamily:"monospace" };
+// ─── Datos editoriales (de fuentes oficiales, no vienen del GTFS) ────────────
+const MODAL = [
+  { modo: "Transporte público", pct: 54, color: "#2563EB", nota: "viajes al trabajo · Censo INE 2024" },
+  { modo: "Automóvil particular", pct: 31.7, color: "#64748B", nota: "viajes totales · CEDEUS 2024" },
+  { modo: "Caminata", pct: 30.4, color: "#10B981", nota: "viajes totales · CEDEUS 2024" },
+  { modo: "Motocicleta", pct: 1.8, color: "#F59E0B", nota: "viajes totales · CEDEUS 2024" },
+  { modo: "Bicicleta u otro", pct: 2, color: "#06B6D4", nota: "viajes totales · CEDEUS 2024" },
+];
 
-const Tag = ({ children, color="#4FA3D1" }) => (
-  <span style={{ ...mono, fontSize:"0.6rem", letterSpacing:"0.1em",
-    textTransform:"uppercase", padding:"0.1rem 0.4rem",
-    background:`${color}20`, color, border:`1px solid ${color}40`,
-    borderRadius:2, whiteSpace:"nowrap" }}>{children}</span>
-);
+const TARIFAS = [
+  { perfil: "Adulto · Punta", horario: "07–09 / 18–20 h", bus: "$795", metro: "$895", destacado: true },
+  { perfil: "Adulto · Valle", horario: "resto del día", bus: "$795", metro: "$815" },
+  { perfil: "Adulto · Baja", horario: "06–07 / 20:45–23 h", bus: "$795", metro: "$735" },
+  { perfil: "Estudiante", horario: "todo horario", bus: "$260", metro: "$260" },
+  { perfil: "Adulto mayor (bip!)", horario: "todo horario", bus: "$390", metro: "$390" },
+  { perfil: "Dale QR (tope mensual)", horario: "—", bus: "$42.000 / mes", metro: "$42.000 / mes" },
+];
 
-const Tip = ({ text, children }) => {
-  const [show, setShow] = useState(false);
-  return (
-    <span style={{ position:"relative", display:"inline" }}
-      onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
-      <span style={{ borderBottom:"1px dashed #4FA3D1", color:"#4FA3D1",
-        cursor:"help", ...mono, fontSize:"0.75rem" }}>{children}</span>
-      {show && (
-        <span style={{ position:"absolute", bottom:"calc(100% + 4px)", left:0,
-          background:"#1F2937", color:"#D1D5DB", fontSize:"0.68rem",
-          padding:"0.4rem 0.6rem", borderRadius:3, width:220, zIndex:50,
-          lineHeight:1.5, boxShadow:"0 4px 12px rgba(0,0,0,.5)", ...mono }}>{text}</span>
-      )}
-    </span>
-  );
+const SEGURIDAD = [
+  { v: "75.653", l: "Siniestros de tránsito en Chile (2024)", c: "#EF4444" },
+  { v: "1.438", l: "Personas fallecidas en vías (2024)", c: "#F59E0B" },
+  { v: "−12%", l: "Reducción de fallecidos vs. 2023", c: "#10B981" },
+  { v: "4", l: "Fallecidos diarios promedio (vs. 5 en 2023)", c: "#2563EB" },
+];
+
+const EXPANSION = [
+  { l: "L7", t: "Brasil → Estoril", d: "19 estaciones · 24,8 km · 2028 · 39% de avance", c: "#E87D1A" },
+  { l: "L8", t: "Providencia → Puente Alto", d: "14 estaciones · 19 km · viaje de 23 min · 2028+", c: "#2563EB" },
+  { l: "L9", t: "Cal y Canto → La Pintana", d: "19 estaciones · 27 km · primer tramo 2030", c: "#10B981" },
+];
+
+// ─── Paleta ──────────────────────────────────────────────────────────────────
+const C = {
+  bg: "#F7F9FC", card: "#FFFFFF", ink: "#1E293B", muted: "#64748B",
+  faint: "#94A3B8", line: "#E8EDF4", blue: "#2563EB", green: "#10B981",
+  amber: "#F59E0B", red: "#EF4444", violet: "#7C3AED", cyan: "#06B6D4",
+};
+const shadow = "0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.04)";
+const shadowHover = "0 12px 28px rgba(16,24,40,.12)";
+const txt = {
+  detailLead: { fontSize: ".85rem", color: C.muted, lineHeight: 1.65, marginBottom: 18, maxWidth: 720 },
 };
 
-const HBar = ({ value, max, color }) => (
-  <div style={{ background:"#1F2937", borderRadius:2, height:8, flex:1, minWidth:60 }}>
-    <div style={{ width:`${Math.min(100,(value/max)*100)}%`, height:"100%",
-      background:color, borderRadius:2, transition:"width .6s ease" }}/>
-  </div>
+// ─── Helpers de UI ───────────────────────────────────────────────────────────
+const Chip = ({ children, color = C.blue, bg }) => (
+  <span style={{
+    fontSize: ".68rem", fontWeight: 600, color, background: bg || `${color}14`,
+    padding: ".2rem .55rem", borderRadius: 999, whiteSpace: "nowrap",
+  }}>{children}</span>
 );
 
-// ─── Estado del pipeline ───────────────────────────────────────────────────
-function PipelineBadge({ data, source }) {
-  const fecha = data?.generado_en
-    ? new Date(data.generado_en).toLocaleDateString("es-CL", { day:"numeric", month:"short", year:"numeric" })
-    : "—";
+function Bar({ value, max, color, height = 9 }) {
   return (
-    <div style={{ background:"#0D1117", border:"1px solid #1F2937",
-      borderLeft:`3px solid ${source==="live"?"#1A9E6B":"#F0B429"}`,
-      padding:"0.75rem 1.1rem", marginBottom:"1.25rem",
-      display:"flex", alignItems:"center", gap:"1rem", flexWrap:"wrap" }}>
-      <div style={{ flex:1 }}>
-        <div style={{ ...mono, fontSize:"0.58rem", textTransform:"uppercase",
-          letterSpacing:"0.12em", color: source==="live"?"#1A9E6B":"#F0B429", marginBottom:2 }}>
-          {source === "live" ? "✓ Datos en vivo — data.json desde GitHub" : "⚠ Modo demostración — datos del pipeline 14/06/2026"}
-        </div>
-        <div style={{ fontSize:"0.8rem", color:"#D1D5DB" }}>
-          GTFS <strong style={{ color:"#F5F1E8" }}>{data?.gtfs_version}</strong>
-          {" · "}vigente {data?.gtfs_start?.replace(/(\d{4})(\d{2})(\d{2})/, "$3/$2/$1")} → {data?.gtfs_end?.replace(/(\d{4})(\d{2})(\d{2})/, "$3/$2/$1")}
-        </div>
-      </div>
-      <div style={{ ...mono, fontSize:"0.65rem", color:"#6B7280", textAlign:"right" }}>
-        Generado<br/>{fecha}
-      </div>
+    <div style={{ background: "#EEF2F8", borderRadius: 999, height, flex: 1, minWidth: 60, overflow: "hidden" }}>
+      <div style={{ width: `${Math.max(2, Math.min(100, (value / max) * 100))}%`, height: "100%", background: color, borderRadius: 999, transition: "width .7s cubic-bezier(.22,1,.36,1)" }} />
     </div>
   );
 }
 
-// ─── Pestañas de contenido ─────────────────────────────────────────────────
-function TabMetro({ lines }) {
-  const [active, setActive] = useState(null);
+// ─── Tarjetas de detalle (el contenido del drill-down) ──────────────────────
+function DetailMetro({ data }) {
+  const lines = [...data.metro_lines].sort((a, b) => a.punta_min - b.punta_min);
+  const max = Math.max(...lines.map((l) => l.punta_min));
   return (
     <div>
-      <p style={{ fontSize:"0.83rem", color:"#9CA3AF", lineHeight:1.7, marginBottom:"0.75rem" }}>
-        <Tip text="Intervalo en minutos entre trenes consecutivos en la misma dirección, extraído del GTFS vigente.">Headway</Tip>{" "}
-        real en hora punta AM (07:00–09:00) según el archivo GTFS del DTPM.
-        Menor número = más frecuente = menos espera.
+      <p style={txt.detailLead}>
+        Minutos entre trenes en hora punta de mañana (07:00–09:00), según el GTFS oficial del DTPM.
+        Menos minutos = más frecuencia = menos espera. Las rutas exprés (roja/verde) son las más rápidas.
       </p>
-      <div style={{ display:"grid", gap:1, background:"#1F2937" }}>
-        {lines.map(l => (
-          <div key={l.id} onClick={() => setActive(active===l.id ? null : l.id)}
-            style={{ background: active===l.id ? "#111827":"#0D1117",
-              padding:"0.85rem 1.1rem", cursor:"pointer",
-              display:"grid", gridTemplateColumns:"3.5rem 1fr auto auto",
-              alignItems:"center", gap:"1rem",
-              borderLeft:`3px solid ${l.color}`, transition:"background .15s" }}>
-            <span style={{ ...mono, fontWeight:700, color:l.color, fontSize:"0.8rem" }}>{l.id}</span>
-            <div>
-              <div style={{ fontSize:"0.82rem", color:"#F5F1E8", fontWeight:500 }}>
-                {l.nombre.replace(/\(.*?\)\s*/,"").trim()}
-              </div>
-              {active===l.id && (
-                <div style={{ ...mono, fontSize:"0.68rem", color:"#6B7280", marginTop:3 }}>
-                  {l.nombre}
-                </div>
-              )}
-            </div>
-            <HBar value={Math.max(0,10-l.punta_min)} max={9} color={l.color}/>
-            <div style={{ textAlign:"right", minWidth:64 }}>
-              <span style={{ ...mono, fontWeight:700, fontSize:"1rem",
-                color: l.punta_min<=5?"#1A9E6B": l.punta_min<=7?"#F0B429":"#9CA3AF" }}>
-                {l.punta_min}
-              </span>
-              <span style={{ ...mono, fontSize:"0.6rem", color:"#6B7280" }}> min</span>
-            </div>
-          </div>
-        ))}
-      </div>
-      <p style={{ ...mono, fontSize:"0.62rem", color:"#4B5563", marginTop:6 }}>
-        Verde ≤ 5 min · Amarillo ≤ 7 min · Gris &gt; 7 min · Click para detalle
-      </p>
-    </div>
-  );
-}
-
-function TabBuses({ periodos }) {
-  const maxAvg = Math.max(...periodos.map(p=>p.avg));
-  return (
-    <div>
-      <p style={{ fontSize:"0.83rem", color:"#9CA3AF", lineHeight:1.7, marginBottom:"0.75rem" }}>
-        Frecuencia promedio de las <strong style={{color:"#F5F1E8"}}>{412}</strong> rutas de buses RED por período horario.
-        La <Tip text="Valor central: la mitad de las rutas tiene una frecuencia menor y la otra mitad mayor. Más robusta que el promedio ante valores extremos.">mediana</Tip>{" "}
-        es más representativa que el promedio.
-      </p>
-      <div style={{ display:"grid", gap:1, background:"#1F2937" }}>
-        {periodos.map(p => (
-          <div key={p.periodo} style={{ background:"#0D1117", padding:"0.85rem 1.1rem",
-            display:"grid", gridTemplateColumns:"8rem 1fr 5.5rem 5.5rem",
-            alignItems:"center", gap:"1rem" }}>
-            <div>
-              <div style={{ fontSize:"0.82rem", color:"#F5F1E8", fontWeight:500 }}>{p.periodo}</div>
-              <div style={{ ...mono, fontSize:"0.62rem", color:"#6B7280" }}>{p.horario}</div>
-            </div>
-            <HBar value={maxAvg - p.avg + 5} max={maxAvg + 3} color="#4FA3D1"/>
-            <div style={{ textAlign:"right" }}>
-              <span style={{ ...mono, fontWeight:700, color:"#4FA3D1" }}>{p.avg}</span>
-              <span style={{ ...mono, fontSize:"0.6rem", color:"#6B7280" }}> avg</span>
-            </div>
-            <div style={{ textAlign:"right" }}>
-              <span style={{ ...mono, color:"#9CA3AF" }}>{p.mediana}</span>
-              <span style={{ ...mono, fontSize:"0.6rem", color:"#6B7280" }}> med</span>
-            </div>
-          </div>
-        ))}
-      </div>
-      <p style={{ ...mono, fontSize:"0.62rem", color:"#4B5563", marginTop:6 }}>
-        avg = promedio aritmético · med = mediana · unidades en minutos
-      </p>
-    </div>
-  );
-}
-
-function TabTopRutas({ rutas }) {
-  return (
-    <div>
-      <p style={{ fontSize:"0.83rem", color:"#9CA3AF", lineHeight:1.7, marginBottom:"0.75rem" }}>
-        Las 10 rutas de bus con menor{" "}
-        <Tip text="Headway: minutos entre buses consecutivos. Menor = más frecuente.">headway</Tip>{" "}
-        en hora punta AM, calculadas del GTFS. (M) = conexión directa con Metro.
-      </p>
-      <div style={{ display:"grid", gap:1, background:"#1F2937" }}>
-        {rutas.map((r, i) => (
-          <div key={r.id} style={{ background:"#0D1117", padding:"0.75rem 1.1rem",
-            display:"grid", gridTemplateColumns:"2rem 3rem 1fr auto 4rem",
-            alignItems:"center", gap:"0.75rem" }}>
-            <span style={{ ...mono, fontSize:"0.65rem", color:"#4B5563" }}>#{i+1}</span>
-            <span style={{ ...mono, fontSize:"0.72rem", color:"#E8341A", fontWeight:700 }}>{r.id}</span>
-            <span style={{ fontSize:"0.8rem", color:"#D1D5DB" }}>{r.nombre.replace(/^\(M\)\s*/,"")}</span>
-            <div style={{ display:"flex", gap:4 }}>
-              {r.tiene_metro && <Tag color="#4FA3D1">Metro</Tag>}
-            </div>
-            <div style={{ textAlign:"right" }}>
-              <span style={{ ...mono, fontWeight:700,
-                color: r.freq<=6?"#1A9E6B":"#F0B429" }}>{r.freq}</span>
-              <span style={{ ...mono, fontSize:"0.6rem", color:"#6B7280" }}> min</span>
-            </div>
+      <div style={{ display: "grid", gap: 10 }}>
+        {lines.map((l, i) => (
+          <div key={i} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", alignItems: "center", gap: 14 }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 8, minWidth: 52 }}>
+              <span style={{ width: 12, height: 12, borderRadius: 4, background: l.color, flexShrink: 0 }} />
+              <strong style={{ fontSize: ".82rem", color: C.ink }}>{l.id}</strong>
+            </span>
+            <Bar value={max - l.punta_min + 1} max={max + 1} color={l.color} />
+            <span style={{ fontWeight: 700, fontSize: ".9rem", color: C.ink, minWidth: 60, textAlign: "right" }}>
+              {l.punta_min.toFixed(1)} <span style={{ color: C.faint, fontWeight: 500, fontSize: ".7rem" }}>min</span>
+            </span>
           </div>
         ))}
       </div>
@@ -230,280 +139,363 @@ function TabTopRutas({ rutas }) {
   );
 }
 
-function TabSerie({ serie }) {
-  const vals = serie.map(d=>d.m);
-  const max = Math.max(...vals);
-  const min = Math.min(...vals);
-  const ultimo = serie[serie.length-1];
+function DetailBuses({ data }) {
+  const maxAvg = Math.max(...data.periodos_bus.map((p) => p.avg));
+  return (
+    <div>
+      <p style={txt.detailLead}>
+        Frecuencia de las <strong>{data.rutas_bus}</strong> rutas de buses RED por franja horaria.
+        La <em>mediana</em> es más representativa que el promedio. Abajo, las 10 rutas más frecuentes.
+      </p>
+      <div style={{ display: "grid", gap: 12, marginBottom: 22 }}>
+        {data.periodos_bus.map((p) => (
+          <div key={p.periodo} style={{ display: "grid", gridTemplateColumns: "9rem 1fr auto", alignItems: "center", gap: 14 }}>
+            <span>
+              <span style={{ fontWeight: 600, fontSize: ".82rem", color: C.ink, display: "block" }}>{p.periodo}</span>
+              <span style={{ fontSize: ".68rem", color: C.faint }}>{p.horario}</span>
+            </span>
+            <Bar value={maxAvg - p.avg + 4} max={maxAvg + 2} color={C.blue} />
+            <span style={{ minWidth: 96, textAlign: "right", fontSize: ".8rem" }}>
+              <strong style={{ color: C.blue }}>{p.mediana}</strong>
+              <span style={{ color: C.faint }}> med · {p.avg} avg</span>
+            </span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: ".7rem", fontWeight: 600, color: C.faint, textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 10 }}>
+        Top 10 rutas más frecuentes (punta AM)
+      </div>
+      <div style={{ display: "grid", gap: 6 }}>
+        {data.top_rutas.map((r, i) => (
+          <div key={r.id} style={{ display: "grid", gridTemplateColumns: "1.4rem 3rem 1fr auto auto", alignItems: "center", gap: 10, padding: "7px 10px", background: C.bg, borderRadius: 10 }}>
+            <span style={{ fontSize: ".7rem", color: C.faint, fontWeight: 600 }}>{i + 1}</span>
+            <strong style={{ fontSize: ".78rem", color: C.blue }}>{r.id}</strong>
+            <span style={{ fontSize: ".8rem", color: C.ink }}>{r.nombre.replace(/^\(M\)\s*/, "")}</span>
+            {r.tiene_metro ? <Chip color={C.violet}>Metro</Chip> : <span />}
+            <span style={{ fontWeight: 700, fontSize: ".82rem", color: r.freq <= 6 ? C.green : C.amber, minWidth: 54, textAlign: "right" }}>
+              {r.freq} <span style={{ color: C.faint, fontWeight: 500, fontSize: ".68rem" }}>min</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DetailSerie({ data }) {
+  const serie = data.serie_metro;
+  const vals = serie.map((d) => d.m);
+  const max = Math.max(...vals), min = Math.min(...vals);
   const [hover, setHover] = useState(null);
-
+  const ultimo = serie[serie.length - 1];
+  const maxItem = serie.find((d) => d.m === max);
   return (
     <div>
-      <p style={{ fontSize:"0.83rem", color:"#9CA3AF", lineHeight:1.7, marginBottom:"0.75rem" }}>
-        Pasajeros mensuales del Metro de Santiago publicados por el INE.
-        Actualizable editando <code style={{ ...mono, background:"#1F2937",
-          padding:"0 4px", borderRadius:2, fontSize:"0.75rem" }}>SERIE_INE</code>{" "}
-        en el extractor cada vez que el INE publica un nuevo boletín (~2 meses de rezago).
+      <p style={txt.detailLead}>
+        Pasajeros mensuales del Metro de Santiago (en millones), publicados por el INE con ~2 meses de rezago.
       </p>
-
-      {/* KPIs */}
-      <div style={{ display:"flex", gap:"2rem", marginBottom:"1.5rem", flexWrap:"wrap" }}>
+      <div style={{ display: "flex", gap: 28, marginBottom: 20, flexWrap: "wrap" }}>
         {[
-          { l:"Último dato", v:`${ultimo.m}M`, s:ultimo.mes, c:"#4FA3D1" },
-          { l:"Máximo",       v:`${max}M`,      s:"Oct 2025",  c:"#1A9E6B" },
-          { l:"Mínimo",       v:`${min}M`,      s:"Feb 2025",  c:"#6B7280" },
-          { l:"Tendencia",    v:vals[vals.length-1]>vals[0]?"↑ Creciendo":"↓ Bajando", s:`vs ${serie[0].mes}`, c:"#F0B429" },
-        ].map(k => (
+          { l: "Último dato", v: `${ultimo.m}M`, s: ultimo.mes, c: C.blue },
+          { l: "Máximo", v: `${max}M`, s: maxItem?.mes, c: C.green },
+          { l: "Tendencia", v: vals[vals.length - 1] > vals[0] ? "↑ al alza" : "↓ a la baja", s: `vs ${serie[0].mes}`, c: C.amber },
+        ].map((k) => (
           <div key={k.l}>
-            <div style={{ ...mono, fontSize:"0.58rem", textTransform:"uppercase",
-              letterSpacing:"0.1em", color:"#6B7280" }}>{k.l}</div>
-            <div style={{ fontFamily:"'Arial Black', sans-serif",
-              fontSize:"1.6rem", fontWeight:800, color:k.c, lineHeight:1.1 }}>{k.v}</div>
-            <div style={{ ...mono, fontSize:"0.62rem", color:"#6B7280" }}>{k.s}</div>
+            <div style={{ fontSize: ".66rem", color: C.faint, textTransform: "uppercase", letterSpacing: ".06em", fontWeight: 600 }}>{k.l}</div>
+            <div style={{ fontSize: "1.5rem", fontWeight: 800, color: k.c, lineHeight: 1.1 }}>{k.v}</div>
+            <div style={{ fontSize: ".68rem", color: C.faint }}>{k.s}</div>
           </div>
         ))}
       </div>
-
-      {/* Gráfico barras */}
-      <div style={{ display:"flex", alignItems:"flex-end", gap:3, height:120,
-        paddingBottom:"1.5rem", position:"relative", userSelect:"none" }}>
-        {serie.map((d,i) => {
-          const h = ((d.m-min)/(max-min||1))*85+10;
-          const isLast = i===serie.length-1;
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 150, position: "relative" }}>
+        {serie.map((d, i) => {
+          const h = ((d.m - min) / (max - min || 1)) * 80 + 18;
+          const isLast = i === serie.length - 1;
           return (
-            <div key={d.mes} style={{ flex:1, display:"flex", flexDirection:"column",
-              alignItems:"center", position:"relative", cursor:"default" }}
-              onMouseEnter={() => setHover(i)}
-              onMouseLeave={() => setHover(null)}>
-              {hover===i && (
-                <div style={{ position:"absolute", bottom:"102%", left:"50%",
-                  transform:"translateX(-50%)", background:"#1F2937",
-                  padding:"0.25rem 0.45rem", borderRadius:3,
-                  ...mono, fontSize:"0.62rem", color:"#F5F1E8",
-                  whiteSpace:"nowrap", zIndex:10 }}>
-                  {d.mes}<br/>{d.m}M
+            <div key={d.mes} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}
+              style={{ flex: 1, height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "center", position: "relative", cursor: "default" }}>
+              {hover === i && (
+                <div style={{ position: "absolute", bottom: "calc(100% + 4px)", background: C.ink, color: "#fff", fontSize: ".66rem", padding: "4px 7px", borderRadius: 6, whiteSpace: "nowrap", zIndex: 5, fontWeight: 500 }}>
+                  {d.mes}: {d.m}M
                 </div>
               )}
-              <div style={{ width:"100%", height:`${h}%`,
-                background: isLast?"#4FA3D1": hover===i?"#4FA3D150":"#1F2937",
-                borderRadius:"2px 2px 0 0", transition:"background .15s",
-                borderTop: isLast?"2px solid #4FA3D1":"none" }}/>
+              <div style={{ width: "100%", maxWidth: 22, height: `${h}%`, background: isLast ? C.blue : hover === i ? "#93B4F5" : "#CBD9EE", borderRadius: "5px 5px 0 0", transition: "background .15s" }} />
             </div>
           );
         })}
       </div>
-      <div style={{ display:"flex", justifyContent:"space-between",
-        ...mono, fontSize:"0.58rem", color:"#4B5563" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: ".66rem", color: C.faint, marginTop: 8 }}>
         <span>{serie[0].mes}</span>
-        <span>Barra azul = dato más reciente · pasar cursor para ver valor</span>
+        <span>Barra azul = dato más reciente · pasa el cursor</span>
         <span>{ultimo.mes}</span>
-      </div>
-      <div style={{ marginTop:"0.75rem", padding:"0.65rem 0.9rem",
-        background:"#0D1117", border:"1px solid #1F2937",
-        ...mono, fontSize:"0.62rem", color:"#4B5563", lineHeight:1.6 }}>
-        Fuente: INE — Boletín mensual "Personas transportadas por Metro de Santiago" ·
-        Publicado con ~2 meses de rezago · {serie.length} meses disponibles en la serie.
       </div>
     </div>
   );
 }
 
-function TabPipeline({ data }) {
-  const pasos = [
-    {
-      titulo:"Rutas, frecuencias, paradas",
-      badge:"Automático — cada lunes 06h UTC",
-      color:"#1A9E6B",
-      items:[
-        "GitHub Actions descarga el GTFS del DTPM (vía repo espejo)",
-        "Calcula MD5: si el archivo no cambió, no hace nada",
-        "Si cambió, ejecuta gtfs_extractor.py y genera un nuevo data.json",
-        "Hace commit automático → el frontend lo lee sin intervención humana",
-      ],
-    },
-    {
-      titulo:"Pasajeros mensuales Metro",
-      badge:"Manual — ~cada 2 meses",
-      color:"#F0B429",
-      items:[
-        "Ir a ine.gob.cl → Sala de Prensa → buscar 'Metro de Santiago'",
-        "El INE publica el boletín ~2 meses después del período",
-        "Editar SERIE_INE en gtfs_extractor.py agregando { mes, m }",
-        "Hacer commit → el pipeline toma el nuevo valor en la próxima ejecución",
-      ],
-    },
-    {
-      titulo:"Tarifas",
-      badge:"Manual — cuando el Panel de Expertos las cambia",
-      color:"#E8341A",
-      items:[
-        "El Panel de Expertos anuncia el cambio con ~1 semana de anticipación",
-        "La resolución se publica en dtpm.cl → Sistemas de Pago → Tarifas",
-        "Editar la tabla de tarifas en el HTML principal del sitio",
-      ],
-    },
-  ];
-
+function DetailTarifas() {
   return (
     <div>
-      <p style={{ fontSize:"0.83rem", color:"#9CA3AF", lineHeight:1.7, marginBottom:"1rem" }}>
-        El pipeline corre en <strong style={{color:"#F5F1E8"}}>GitHub Actions</strong> (gratuito para repos públicos).
-        Solo necesita acceso a internet; no requiere servidor propio.
+      <p style={txt.detailLead}>
+        Tarifa integrada: con un pago combinas bus, Metro y tren en hasta 2 transbordos durante 120 minutos.
+        Vigentes desde feb. 2026 (Panel de Expertos del Transporte Público).
       </p>
-
-      {/* Diagrama ASCII */}
-      <div style={{ background:"#0D1117", border:"1px solid #1F2937",
-        padding:"1rem 1.25rem", marginBottom:"1.25rem",
-        ...mono, fontSize:"0.68rem", color:"#6B7280", lineHeight:1.8, overflowX:"auto" }}>
-        <pre style={{ margin:0 }}>{`DTPM (GTFS)             INE (boletín PDF)
-     │                        │
-     ▼                        ▼ (manual, ~2 meses)
-GitHub Actions ──► gtfs_extractor.py
-(cron: lunes        │
- 06h UTC)           ▼
-            data.json  ──► git commit → GitHub
-                               │
-                               ▼
-                        Frontend (fetch)
-                        sin reinicio ni deploy`}</pre>
-      </div>
-
-      <div style={{ display:"grid", gap:1, background:"#1F2937" }}>
-        {pasos.map(p => (
-          <div key={p.titulo} style={{ background:"#0D1117", padding:"1.1rem 1.25rem",
-            borderLeft:`3px solid ${p.color}` }}>
-            <div style={{ display:"flex", justifyContent:"space-between",
-              alignItems:"flex-start", gap:"1rem", marginBottom:"0.65rem", flexWrap:"wrap" }}>
-              <span style={{ fontWeight:600, color:"#F5F1E8", fontSize:"0.88rem" }}>{p.titulo}</span>
-              <Tag color={p.color}>{p.badge}</Tag>
-            </div>
-            <ol style={{ paddingLeft:"1.25rem", margin:0 }}>
-              {p.items.map((s,i) => (
-                <li key={i} style={{ fontSize:"0.78rem", color:"#9CA3AF",
-                  lineHeight:1.65, marginBottom:"0.2rem" }}>{s}</li>
-              ))}
-            </ol>
+      <div style={{ display: "grid", gap: 6 }}>
+        {TARIFAS.map((t) => (
+          <div key={t.perfil} style={{ display: "grid", gridTemplateColumns: "1fr auto auto", alignItems: "center", gap: 12, padding: "10px 14px", background: t.destacado ? "#EFF4FF" : C.bg, borderRadius: 10, border: t.destacado ? `1px solid ${C.blue}22` : "1px solid transparent" }}>
+            <span>
+              <strong style={{ fontSize: ".82rem", color: C.ink, display: "block" }}>{t.perfil}</strong>
+              <span style={{ fontSize: ".68rem", color: C.faint }}>{t.horario}</span>
+            </span>
+            <span style={{ fontSize: ".82rem", color: C.muted, textAlign: "right", minWidth: 90 }}>
+              <span style={{ color: C.faint, fontSize: ".66rem" }}>bus </span><strong>{t.bus}</strong>
+            </span>
+            <span style={{ fontSize: ".82rem", color: C.muted, textAlign: "right", minWidth: 100 }}>
+              <span style={{ color: C.faint, fontSize: ".66rem" }}>metro </span><strong style={{ color: t.destacado ? C.blue : C.ink }}>{t.metro}</strong>
+            </span>
           </div>
         ))}
       </div>
+    </div>
+  );
+}
 
-      <div style={{ marginTop:"1.25rem", padding:"0.75rem 1rem",
-        background:"rgba(232,52,26,0.06)", border:"1px solid rgba(232,52,26,0.2)",
-        fontSize:"0.75rem", color:"#C0503A", lineHeight:1.6 }}>
-        <strong>Limitación actual:</strong> El GTFS refleja el programa de operación planificado, no
-        posiciones en tiempo real. Para datos en tiempo real se requiere convenio formal con el DTPM
-        (acceso a su API privada con IP fija). El MTT licitó la renovación de ese sistema en abril 2025;
-        cuando esté disponible públicamente, el pipeline puede extenderse.
+function DetailModal() {
+  const max = Math.max(...MODAL.map((m) => m.pct));
+  return (
+    <div>
+      <p style={txt.detailLead}>
+        Reparto de los viajes por medio de transporte. Ojo: el 54% es "viajes al trabajo" (Censo INE 2024)
+        y el resto son "viajes totales diarios" (CEDEUS 2024); provienen de estudios distintos.
+      </p>
+      <div style={{ display: "grid", gap: 14 }}>
+        {MODAL.map((m) => (
+          <div key={m.modo} style={{ display: "grid", gridTemplateColumns: "11rem 1fr auto", alignItems: "center", gap: 14 }}>
+            <span>
+              <span style={{ fontWeight: 600, fontSize: ".82rem", color: C.ink, display: "block" }}>{m.modo}</span>
+              <span style={{ fontSize: ".64rem", color: C.faint }}>{m.nota}</span>
+            </span>
+            <Bar value={m.pct} max={max} color={m.color} height={11} />
+            <strong style={{ minWidth: 56, textAlign: "right", color: m.color, fontSize: ".95rem" }}>{m.pct}%</strong>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-// ─── APP ───────────────────────────────────────────────────────────────────
-const TABS = [
-  { id:"metro",    label:"Metro — headways" },
-  { id:"buses",    label:"Buses RED — períodos" },
-  { id:"toprutas", label:"Top rutas" },
-  { id:"serie",    label:"Pasajeros mensual" },
-  { id:"pipeline", label:"Pipeline" },
-];
+function DetailSeguridad() {
+  return (
+    <div>
+      <p style={txt.detailLead}>
+        En 2024 Chile registró la menor cifra histórica de fallecidos en tránsito. (CONASET / Carabineros)
+      </p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12 }}>
+        {SEGURIDAD.map((s) => (
+          <div key={s.l} style={{ padding: 16, background: C.bg, borderRadius: 12 }}>
+            <div style={{ fontSize: "1.7rem", fontWeight: 800, color: s.c, lineHeight: 1 }}>{s.v}</div>
+            <div style={{ fontSize: ".74rem", color: C.muted, marginTop: 6, lineHeight: 1.4 }}>{s.l}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
+function DetailRed({ data }) {
+  return (
+    <div>
+      <p style={txt.detailLead}>
+        La red de Metro más extensa de Sudamérica: {data.rutas_metro} servicios, 143 estaciones y 149 km.
+        Tres nuevas líneas en construcción ampliarán la red a ~225 km hacia 2033.
+      </p>
+      <div style={{ display: "grid", gap: 8 }}>
+        {EXPANSION.map((e) => (
+          <div key={e.l} style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 14, alignItems: "center", padding: "12px 14px", background: C.bg, borderRadius: 12, borderLeft: `4px solid ${e.c}` }}>
+            <span style={{ fontWeight: 800, fontSize: "1.1rem", color: e.c, minWidth: 42 }}>{e.l}</span>
+            <span>
+              <strong style={{ fontSize: ".85rem", color: C.ink, display: "block" }}>{e.t}</strong>
+              <span style={{ fontSize: ".72rem", color: C.faint }}>{e.d}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Tarjeta de sección con drill-down ──────────────────────────────────────
+function SectionCard({ id, icon, title, metric, unit, sub, accent, open, onToggle, children }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div id={id}
+      onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+      style={{
+        gridColumn: open ? "1 / -1" : "auto",
+        background: C.card, borderRadius: 16, border: `1px solid ${C.line}`,
+        boxShadow: hover || open ? shadowHover : shadow, transition: "box-shadow .2s, transform .2s",
+        transform: hover && !open ? "translateY(-2px)" : "none", overflow: "hidden",
+      }}>
+      <button onClick={onToggle} style={{
+        width: "100%", textAlign: "left", border: "none", background: "none", cursor: "pointer",
+        padding: "20px 22px", display: "flex", alignItems: "center", gap: 16, font: "inherit", color: "inherit",
+      }}>
+        <span style={{ width: 44, height: 44, borderRadius: 12, background: `${accent}15`, display: "grid", placeItems: "center", fontSize: "1.3rem", flexShrink: 0 }}>{icon}</span>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ fontSize: ".72rem", fontWeight: 600, color: C.faint, textTransform: "uppercase", letterSpacing: ".05em", display: "block" }}>{title}</span>
+          <span style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
+            <strong style={{ fontSize: "1.6rem", fontWeight: 800, color: accent, lineHeight: 1.1 }}>{metric}</strong>
+            {unit && <span style={{ fontSize: ".8rem", color: C.faint }}>{unit}</span>}
+          </span>
+          <span style={{ fontSize: ".78rem", color: C.muted, display: "block", marginTop: 2 }}>{sub}</span>
+        </span>
+        <span style={{ fontSize: ".74rem", fontWeight: 600, color: accent, display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
+          {open ? "Cerrar" : "Ver detalle"}
+          <span style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▾</span>
+        </span>
+      </button>
+      {open && (
+        <div style={{ padding: "0 22px 24px", borderTop: `1px solid ${C.line}` }}>
+          <div style={{ paddingTop: 18 }}>{children}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── KPI grande de cabecera (clic = abre su sección) ────────────────────────
+function HeroKpi({ value, unit, label, accent, onClick }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button onClick={onClick} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+      style={{
+        textAlign: "left", border: `1px solid ${C.line}`, background: C.card, borderRadius: 16,
+        padding: "20px 22px", cursor: "pointer", boxShadow: hover ? shadowHover : shadow,
+        transform: hover ? "translateY(-3px)" : "none", transition: "all .2s", flex: "1 1 200px", minWidth: 0,
+      }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 5 }}>
+        <span style={{ fontSize: "2.4rem", fontWeight: 900, color: accent, lineHeight: 1, letterSpacing: "-.02em" }}>{value}</span>
+        {unit && <span style={{ fontSize: "1rem", fontWeight: 700, color: accent }}>{unit}</span>}
+      </div>
+      <div style={{ fontSize: ".82rem", color: C.muted, marginTop: 8, lineHeight: 1.4 }}>{label}</div>
+      <div style={{ fontSize: ".7rem", color: accent, fontWeight: 600, marginTop: 10 }}>Ver detalle ↓</div>
+    </button>
+  );
+}
+
+// ─── APP ─────────────────────────────────────────────────────────────────────
 export default function GTFSExplorer() {
-  const [tab, setTab]   = useState("metro");
   const [data, setData] = useState(null);
-  const [src, setSrc]   = useState("demo");
-  const [loading, setLoading] = useState(false);
+  const [src, setSrc] = useState("demo");
+  const [open, setOpen] = useState(null);
+  const sectionsRef = useRef(null);
 
   useEffect(() => {
-    if (DATA_URL) {
-      setLoading(true);
-      fetch(DATA_URL)
-        .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-        .then(d => { setData(d); setSrc("live"); })
-        .catch(() => { setData(DEMO_DATA); setSrc("demo"); })
-        .finally(() => setLoading(false));
-    } else {
-      setData(DEMO_DATA);
-      setSrc("demo");
-    }
+    fetch(DATA_URL)
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then((d) => { setData(d); setSrc("live"); })
+      .catch(() => { setData(DEMO_DATA); setSrc("demo"); });
   }, []);
 
+  const goTo = (id) => {
+    setOpen(id);
+    setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+  };
+  const toggle = (id) => setOpen((o) => (o === id ? null : id));
+
   if (!data) return (
-    <div style={{ minHeight:"100vh", background:"#111318", color:"#F5F1E8",
-      display:"flex", alignItems:"center", justifyContent:"center",
-      fontFamily:"monospace", fontSize:"0.8rem", color:"#6B7280" }}>
-      {loading ? "Cargando datos del pipeline..." : "Iniciando..."}
+    <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", color: C.faint, fontSize: ".9rem" }}>
+      Cargando datos…
     </div>
   );
 
+  const mejorMetro = Math.min(...data.metro_lines.map((l) => l.punta_min));
+  const ultimoMetro = data.serie_metro[data.serie_metro.length - 1];
+  const fecha = data.generado_en
+    ? new Date(data.generado_en).toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" })
+    : "—";
+
   return (
-    <div style={{ minHeight:"100vh", background:"#111318", color:"#F5F1E8",
-      fontFamily:"Inter, sans-serif" }}>
-
+    <div style={{ minHeight: "100vh", background: C.bg, color: C.ink }}>
       {/* HEADER */}
-      <div style={{ borderBottom:"1px solid #1F2937", padding:"1.25rem 1.5rem 1rem" }}>
-        <div style={{ fontFamily:"monospace", fontSize:"0.58rem", letterSpacing:"0.15em",
-          textTransform:"uppercase", color:"#4FA3D1", marginBottom:"0.4rem" }}>
-          Pipeline de datos abiertos · Santiago de Chile
+      <header style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(247,249,252,.85)", backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.line}` }}>
+        <div style={{ maxWidth: 1080, margin: "0 auto", padding: "14px 24px", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <strong style={{ fontSize: ".95rem", fontWeight: 800, marginRight: "auto" }}>
+            Santiago <span style={{ color: C.blue }}>en movimiento</span>
+          </strong>
+          <Chip color={src === "live" ? C.green : C.amber} bg={src === "live" ? "#E7F8F0" : "#FEF6E7"}>
+            {src === "live" ? "● Datos en vivo" : "● Modo demostración"}
+          </Chip>
+          <span style={{ fontSize: ".72rem", color: C.faint }}>Actualizado: {fecha}</span>
         </div>
-        <h1 style={{ fontFamily:"'Arial Black', sans-serif",
-          fontSize:"clamp(1.3rem,4vw,2rem)", fontWeight:900,
-          lineHeight:1, letterSpacing:"-0.02em", margin:0 }}>
-          GTFS Explorer<br/>
-          <span style={{ color:"#E8341A" }}>Red Metropolitana</span>
+      </header>
+
+      {/* HERO */}
+      <section style={{ maxWidth: 1080, margin: "0 auto", padding: "48px 24px 12px" }}>
+        <div style={{ fontSize: ".74rem", fontWeight: 600, color: C.blue, textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 14 }}>
+          El transporte público de Santiago en datos
+        </div>
+        <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.4rem)", fontWeight: 900, lineHeight: 1.05, letterSpacing: "-.03em", maxWidth: 720 }}>
+          Cómo se mueve la capital, <span style={{ color: C.blue }}>con datos abiertos</span>
         </h1>
+        <p style={{ fontSize: "1.05rem", color: C.muted, maxWidth: 580, marginTop: 18, lineHeight: 1.6 }}>
+          Más de 5 millones de viajes al día. Explora las cifras clave del Metro, los buses RED y la movilidad —
+          haz clic en cualquier dato para profundizar.
+        </p>
 
-        {/* KPIs del sistema */}
-        <div style={{ display:"flex", gap:"1.5rem", marginTop:"0.9rem",
-          paddingTop:"0.9rem", borderTop:"1px solid #1F2937", flexWrap:"wrap" }}>
-          {[
-            ["Rutas de bus",             data.rutas_bus],
-            ["Rutas de Metro",           data.rutas_metro],
-            ["Paradas / estaciones",     data.paradas_total.toLocaleString("es-CL")],
-            ["Pasajeros Metro nov. 2025","57,7M"],
-          ].map(([l,v]) => (
-            <div key={l}>
-              <div style={{ fontFamily:"monospace", fontSize:"0.56rem",
-                textTransform:"uppercase", letterSpacing:"0.1em", color:"#6B7280" }}>{l}</div>
-              <div style={{ fontFamily:"'Arial Black',sans-serif",
-                fontWeight:900, fontSize:"1.2rem", color:"#F5F1E8", lineHeight:1.1 }}>{v}</div>
-            </div>
-          ))}
+        {/* KPIs grandes */}
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 36 }}>
+          <HeroKpi value="660" unit="M" label="Viajes en Metro durante 2025" accent={C.blue} onClick={() => goTo("sec-serie")} />
+          <HeroKpi value="54" unit="%" label="Usa transporte público para ir al trabajo" accent={C.green} onClick={() => goTo("sec-modal")} />
+          <HeroKpi value={data.rutas_bus} label="Rutas de buses RED en operación" accent={C.violet} onClick={() => goTo("sec-buses")} />
+          <HeroKpi value={mejorMetro.toFixed(1)} unit="min" label="Mejor frecuencia de Metro en hora punta" accent={C.amber} onClick={() => goTo("sec-metro")} />
         </div>
-      </div>
+      </section>
 
-      {/* TABS */}
-      <div style={{ display:"flex", overflowX:"auto", borderBottom:"1px solid #1F2937",
-        scrollbarWidth:"none" }}>
-        {TABS.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)} style={{
-            padding:"0.7rem 1rem", background:"none", border:"none",
-            borderBottom: tab===t.id ? "2px solid #E8341A":"2px solid transparent",
-            color: tab===t.id ? "#F5F1E8":"#6B7280",
-            fontFamily:"monospace", fontSize:"0.62rem", letterSpacing:"0.08em",
-            textTransform:"uppercase", cursor:"pointer", whiteSpace:"nowrap",
-            transition:"color .15s" }}>{t.label}</button>
-        ))}
-      </div>
+      {/* SECCIONES DRILL-DOWN */}
+      <section ref={sectionsRef} style={{ maxWidth: 1080, margin: "0 auto", padding: "28px 24px 16px" }}>
+        <div style={{ fontSize: ".74rem", fontWeight: 600, color: C.faint, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 16 }}>
+          Explora los datos
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16, alignItems: "start" }}>
+          <SectionCard id="sec-metro" icon="🚇" title="Metro · frecuencia" metric={mejorMetro.toFixed(1)} unit="min (mejor línea)" sub="Tiempo entre trenes en hora punta, por línea" accent={C.red} open={open === "sec-metro"} onToggle={() => toggle("sec-metro")}>
+            <DetailMetro data={data} />
+          </SectionCard>
 
-      {/* CONTENIDO */}
-      <div style={{ padding:"1.25rem 1.5rem", maxWidth:860 }}>
-        <PipelineBadge data={data} source={src}/>
-        {tab === "metro"    && <TabMetro    lines={data.metro_lines}/>}
-        {tab === "buses"    && <TabBuses    periodos={data.periodos_bus}/>}
-        {tab === "toprutas" && <TabTopRutas rutas={data.top_rutas}/>}
-        {tab === "serie"    && <TabSerie    serie={data.serie_metro}/>}
-        {tab === "pipeline" && <TabPipeline data={data}/>}
-      </div>
+          <SectionCard id="sec-buses" icon="🚌" title="Buses RED · frecuencia" metric={data.rutas_bus} unit="rutas" sub="Frecuencia por franja horaria y top de rutas" accent={C.blue} open={open === "sec-buses"} onToggle={() => toggle("sec-buses")}>
+            <DetailBuses data={data} />
+          </SectionCard>
+
+          <SectionCard id="sec-serie" icon="📈" title="Pasajeros del Metro" metric={`${ultimoMetro.m}M`} unit={ultimoMetro.mes} sub="Serie mensual de pasajeros (INE)" accent={C.green} open={open === "sec-serie"} onToggle={() => toggle("sec-serie")}>
+            <DetailSerie data={data} />
+          </SectionCard>
+
+          <SectionCard id="sec-modal" icon="🧭" title="Cómo se mueve Santiago" metric="54" unit="% en transp. público" sub="Reparto de viajes por medio de transporte" accent={C.violet} open={open === "sec-modal"} onToggle={() => toggle("sec-modal")}>
+            <DetailModal />
+          </SectionCard>
+
+          <SectionCard id="sec-tarifas" icon="🎫" title="Tarifas vigentes" metric="$895" unit="adulto punta" sub="Bus, Metro y tren con tarifa integrada" accent={C.amber} open={open === "sec-tarifas"} onToggle={() => toggle("sec-tarifas")}>
+            <DetailTarifas />
+          </SectionCard>
+
+          <SectionCard id="sec-red" icon="🛤️" title="Red y expansión" metric="149" unit="km · 143 estaciones" sub="3 nuevas líneas en construcción" accent={C.cyan} open={open === "sec-red"} onToggle={() => toggle("sec-red")}>
+            <DetailRed data={data} />
+          </SectionCard>
+
+          <SectionCard id="sec-seguridad" icon="🛡️" title="Seguridad vial" metric="−12" unit="% fallecidos vs 2023" sub="Menor cifra histórica de víctimas (2024)" accent={C.green} open={open === "sec-seguridad"} onToggle={() => toggle("sec-seguridad")}>
+            <DetailSeguridad />
+          </SectionCard>
+        </div>
+      </section>
 
       {/* FOOTER */}
-      <div style={{ margin:"0 1.5rem 1.5rem", padding:"0.65rem 1rem",
-        background:"#0D1117", border:"1px solid #1F2937",
-        fontFamily:"monospace", fontSize:"0.6rem", color:"#4B5563", lineHeight:1.7 }}>
-        Fuentes: DTPM — GTFS {data.gtfs_version} · INE — Boletín Metro mensual ·
-        Pipeline: GitHub Actions (cron lunes 06h UTC) ·
-        Los datos de frecuencia son programados, no en tiempo real.
-      </div>
+      <footer style={{ maxWidth: 1080, margin: "0 auto", padding: "32px 24px 56px" }}>
+        <div style={{ borderTop: `1px solid ${C.line}`, paddingTop: 20, fontSize: ".72rem", color: C.faint, lineHeight: 1.8 }}>
+          <strong style={{ color: C.muted }}>Fuentes:</strong> INE (Censo 2024, boletín mensual de Metro) · DTPM / Red Movilidad (GTFS {data.gtfs_version}, tarifas) ·
+          Metro de Santiago (Memoria 2025) · CEDEUS (Encuesta de Movilidad 2024) · CONASET (siniestralidad 2024) · Panel de Expertos del Transporte Público.<br />
+          Datos de frecuencia: programados según GTFS, no en tiempo real. Pipeline automático en GitHub Actions (actualización semanal).
+        </div>
+      </footer>
     </div>
   );
 }
