@@ -13,6 +13,7 @@ const PAISES = [
       { nombre: "Santiago", tema: "Transporte público", emoji: "🚇", kpi: "660M", kpiLabel: "viajes en Metro (2025)", accent: C.blue, route: "#/santiago" },
       { nombre: "Valparaíso", tema: "Próximamente", emoji: "⚓", accent: C.cyan },
       { nombre: "Concepción", tema: "Próximamente", emoji: "🌆", accent: C.violet },
+      { nombre: "Coquimbo", tema: "Próximamente", emoji: "🏖️", accent: C.green },
       { nombre: "Antofagasta", tema: "Próximamente", emoji: "🏜️", accent: C.amber },
     ],
   },
