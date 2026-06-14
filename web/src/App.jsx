@@ -33,35 +33,39 @@ function useHashRoute() {
 function CityCard({ ciudad, onOpen }) {
   const [hover, setHover] = useState(false);
   const activa = !!ciudad.route;
+  const a = ciudad.accent;
   return (
     <button
       onClick={() => activa && onOpen(ciudad.route)}
       onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
       disabled={!activa}
       style={{
-        textAlign: "left", border: `1px solid ${C.line}`, borderRadius: 16,
-        background: activa ? C.card : "#FBFCFE", padding: "22px 22px 20px",
+        textAlign: "left", borderRadius: 18, padding: "22px 22px 20px",
         cursor: activa ? "pointer" : "default", fontFamily: "inherit",
-        boxShadow: activa && hover ? shadowHover : shadow,
-        transform: activa && hover ? "translateY(-3px)" : "none",
-        transition: "all .2s", opacity: activa ? 1 : 0.72, position: "relative",
+        position: "relative", overflow: "hidden", transition: "all .2s",
+        border: activa ? `1.5px solid ${a}55` : `1px solid ${C.line}`,
+        background: activa ? `linear-gradient(180deg, #FFFFFF 0%, ${a}0D 100%)` : "#FBFCFE",
+        boxShadow: activa ? (hover ? `0 18px 40px ${a}40` : `0 8px 24px ${a}26`) : shadow,
+        transform: activa && hover ? "translateY(-5px)" : "none",
+        opacity: activa ? 1 : 0.65,
       }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-        <span style={{ width: 46, height: 46, borderRadius: 12, background: `${ciudad.accent}15`, display: "grid", placeItems: "center", fontSize: "1.4rem" }}>{ciudad.emoji}</span>
-        {!activa && (
-          <span style={{ fontSize: ".62rem", fontWeight: 700, color: C.faint, background: "#EEF2F8", padding: ".2rem .55rem", borderRadius: 999, textTransform: "uppercase", letterSpacing: ".05em" }}>Próximamente</span>
-        )}
+      {activa && <span style={{ position: "absolute", top: 0, left: 0, right: 0, height: 6, background: a }} />}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, marginTop: activa ? 6 : 0 }}>
+        <span style={{ width: 48, height: 48, borderRadius: 13, background: activa ? a : `${a}15`, display: "grid", placeItems: "center", fontSize: "1.45rem", boxShadow: activa ? `0 6px 14px ${a}55` : "none" }}>{ciudad.emoji}</span>
+        {activa
+          ? <span style={{ fontSize: ".64rem", fontWeight: 800, color: "#fff", background: a, padding: ".28rem .65rem", borderRadius: 999, textTransform: "uppercase", letterSpacing: ".06em" }}>● Disponible</span>
+          : <span style={{ fontSize: ".62rem", fontWeight: 700, color: C.faint, background: "#EEF2F8", padding: ".2rem .55rem", borderRadius: 999, textTransform: "uppercase", letterSpacing: ".05em" }}>Próximamente</span>}
       </div>
-      <div style={{ fontSize: "1.15rem", fontWeight: 800, color: C.ink }}>{ciudad.nombre}</div>
-      <div style={{ fontSize: ".82rem", color: C.muted, marginTop: 2 }}>{ciudad.tema}</div>
+      <div style={{ fontSize: activa ? "1.4rem" : "1.15rem", fontWeight: 800, color: C.ink }}>{ciudad.nombre}</div>
+      <div style={{ fontSize: ".82rem", color: activa ? C.muted : C.faint, marginTop: 2 }}>{ciudad.tema}</div>
 
       {activa && (
-        <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid ${C.line}`, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+        <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${a}22`, display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 10 }}>
           <span>
-            <span style={{ fontSize: "1.6rem", fontWeight: 900, color: ciudad.accent, lineHeight: 1 }}>{ciudad.kpi}</span>
+            <span style={{ fontSize: "1.8rem", fontWeight: 900, color: a, lineHeight: 1 }}>{ciudad.kpi}</span>
             <span style={{ display: "block", fontSize: ".68rem", color: C.faint, marginTop: 2 }}>{ciudad.kpiLabel}</span>
           </span>
-          <span style={{ fontSize: ".78rem", fontWeight: 600, color: ciudad.accent }}>Explorar →</span>
+          <span style={{ fontSize: ".8rem", fontWeight: 700, color: "#fff", background: a, padding: ".45rem .85rem", borderRadius: 999, whiteSpace: "nowrap", boxShadow: `0 4px 12px ${a}50` }}>Explorar →</span>
         </div>
       )}
     </button>
