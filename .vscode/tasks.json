@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Instalar dependencias Python",
+      "type": "shell",
+      "command": "python",
+      "args": ["-m", "pip", "install", "-r", "pipeline/requirements.txt"],
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "detail": "Instala los paquetes de pipeline/requirements.txt (requests)."
+    },
+    {
+      "label": "Actualizar datos GTFS",
+      "type": "shell",
+      "command": "python",
+      "args": ["pipeline/gtfs_extractor.py"],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "detail": "Ejecuta el extractor: descarga el GTFS y regenera pipeline/output/data.json."
+    }
+  ]
+}

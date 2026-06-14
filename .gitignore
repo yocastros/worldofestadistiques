@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Sistema / editor
+.DS_Store
+Thumbs.db
+*.log
+
+# Nota: pipeline/output/data.json y .gtfs_state.json SÍ se versionan
+# (el workflow de GitHub Actions hace commit de ellos).

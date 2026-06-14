@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Santiago en Movimiento — Datos de Transporte Público 2024–2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rojo:   #E8341A;
+      --azul:   #0B2E6E;
+      --cielo:  #4FA3D1;
+      --crema:  #F5F1E8;
+      --carbon: #111318;
+      --gris:   #6B7280;
+      --verde:  #1A9E6B;
+      --amarillo:#F0B429;
+      --naranja:#E87D1A;
+    }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { background: var(--carbon); color: var(--crema); font-family: 'Inter', sans-serif; line-height: 1.6; }
+
+    /* NAV STICKY */
+    .topnav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(17,19,24,0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #1F2937;
+      padding: 0.75rem 2rem;
+      display: flex; gap: 1.5rem; flex-wrap: wrap;
+    }
+    .topnav a {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--gris);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .topnav a:hover { color: var(--cielo); }
+    .topnav-brand { color: var(--crema) !important; margin-right: auto; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: grid; grid-template-rows: auto 1fr auto;
+      padding: 2rem; background: var(--carbon);
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -10%; right: -5%;
+      width: 55vw; height: 55vw; border-radius: 50%;
+      background: radial-gradient(circle, rgba(79,163,209,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem;
+      letter-spacing: 0.1em; color: var(--gris); text-transform: uppercase;
+      position: relative; z-index: 1;
+    }
+    .hero-topbar span { color: var(--rojo); font-weight: 500; }
+    .hero-center { display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 1; }
+    .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cielo); margin-bottom: 1.5rem; }
+    h1 { font-family: 'Syne', sans-serif; font-size: clamp(3rem, 9vw, 7.5rem); font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; color: var(--crema); }
+    h1 em { font-style: normal; color: var(--rojo); display: block; }
+    .hero-sub { margin-top: 2rem; max-width: 480px; font-size: 1rem; color: #9CA3AF; line-height: 1.75; }
+    .hero-stat { margin-top: 3rem; display: flex; gap: 3rem; flex-wrap: wrap; }
+    .hero-stat-item { display: flex; flex-direction: column; }
+    .hero-stat-num { font-family: 'Syne', sans-serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; color: var(--crema); line-height: 1; }
+    .hero-stat-num span { color: var(--rojo); }
+    .hero-stat-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--gris); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 0.4rem; }
+    .scroll-hint { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; color: var(--gris); text-transform: uppercase; position: relative; z-index: 1; }
+
+    /* SECCIONES */
+    section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+    .section-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cielo); margin-bottom: 0.75rem; }
+    h2 { font-family: 'Syne', sans-serif; font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 800; line-height: 1.1; color: var(--crema); margin-bottom: 1rem; }
+    .lead { font-size: 1.05rem; color: #9CA3AF; max-width: 640px; margin-bottom: 3rem; line-height: 1.75; }
+
+    /* GLOSARIO */
+    .glosario-pill {
+      display: inline-block;
+      background: rgba(79,163,209,0.12);
+      border: 1px solid rgba(79,163,209,0.3);
+      color: var(--cielo); font-size: 0.75rem;
+      padding: 0.1rem 0.45rem; border-radius: 2px;
+      font-family: 'IBM Plex Mono', monospace; cursor: help;
+    }
+
+    /* AVISO FUENTE */
+    .aviso-fuente {
+      background: rgba(240,180,41,0.07);
+      border-left: 3px solid var(--amarillo);
+      padding: 0.85rem 1.2rem;
+      font-size: 0.78rem; color: #D1A636;
+      line-height: 1.6; margin-bottom: 2.5rem;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* TARJETAS */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5px; background: #1F2937; border: 1.5px solid #1F2937; }
+    .card { background: #0D1117; padding: 2rem; display: flex; flex-direction: column; gap: 0.5rem; transition: background 0.2s; }
+    .card:hover { background: #111827; }
+    .card-tag { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gris); }
+    .card-num { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800; line-height: 1; color: var(--crema); }
+    .card-num.red    { color: var(--rojo); }
+    .card-num.blue   { color: var(--cielo); }
+    .card-num.green  { color: var(--verde); }
+    .card-num.yellow { color: var(--amarillo); }
+    .card-num.orange { color: var(--naranja); }
+    .card-title { font-weight: 500; font-size: 0.9rem; color: var(--crema); }
+    .card-desc { font-size: 0.8rem; color: var(--gris); line-height: 1.6; margin-top: 0.5rem; border-top: 1px solid #1F2937; padding-top: 0.75rem; }
+    .card-fuente { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; color: #4B5563; margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* BARRAS */
+    .bar-chart { display: flex; flex-direction: column; gap: 1.2rem; margin: 2rem 0; }
+    .bar-row { display: flex; align-items: center; gap: 1rem; }
+    .bar-label { min-width: 200px; font-size: 0.8rem; color: var(--crema); }
+    .bar-track { flex: 1; height: 10px; background: #1F2937; border-radius: 2px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 2px; animation: grow 1.2s ease forwards; transform-origin: left; }
+    @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    .bar-pct { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--gris); min-width: 50px; text-align: right; }
+
+    /* TABLA TARIFAS */
+    .tarifa-table { width: 100%; border-collapse: collapse; margin: 2rem 0; }
+    .tarifa-table th {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.62rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--gris);
+      padding: 0.75rem 1rem; text-align: left;
+      border-bottom: 1px solid #1F2937;
+    }
+    .tarifa-table td { padding: 0.85rem 1rem; font-size: 0.85rem; border-bottom: 1px solid #1a1f2a; }
+    .tarifa-table tr:hover td { background: #0D1117; }
+    .tarifa-table .monto { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--crema); }
+    .tarifa-table .monto.punta { color: var(--rojo); }
+    .tarifa-table .monto.valle { color: var(--cielo); }
+    .tarifa-table .monto.baja  { color: var(--verde); }
+    .tarifa-table .monto.especial { color: var(--amarillo); }
+    .tarifa-badge {
+      display: inline-block; font-size: 0.6rem; font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.1rem 0.4rem; border-radius: 2px; margin-left: 0.4rem;
+    }
+    .badge-punta  { background: rgba(232,52,26,0.15); color: var(--rojo); }
+    .badge-valle  { background: rgba(79,163,209,0.15); color: var(--cielo); }
+    .badge-baja   { background: rgba(26,158,107,0.15); color: var(--verde); }
+
+    /* COMUNAS */
+    .comunas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1px; background: #1F2937; margin: 2rem 0; }
+    .comuna-item { background: #0D1117; padding: 1rem; display: flex; flex-direction: column; gap: 0.3rem; }
+    .comuna-name { font-size: 0.8rem; color: var(--crema); font-weight: 500; }
+    .comuna-pct { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; }
+    .alta  { color: var(--rojo); }
+    .media { color: var(--cielo); }
+    .baja  { color: var(--gris); }
+    .comuna-micro { height: 3px; border-radius: 1px; background: currentColor; }
+
+    /* METRO LÍNEAS */
+    .lineas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; background: #1F2937; margin: 2rem 0; }
+    .linea-item { background: #0D1117; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.4rem; border-left: 3px solid; }
+    .linea-num { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--crema); }
+    .linea-info { font-size: 0.78rem; color: #9CA3AF; line-height: 1.5; }
+    .linea-km { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--gris); }
+
+    /* SEGURIDAD VIAL */
+    .siniestro-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5px; background: #1F2937; border: 1.5px solid #1F2937; margin: 2rem 0; }
+    .siniestro-card { background: #0D1117; padding: 1.75rem; }
+    .siniestro-num { font-family: 'Syne', sans-serif; font-size: 2.4rem; font-weight: 800; }
+    .siniestro-label { font-size: 0.8rem; color: #9CA3AF; margin-top: 0.3rem; }
+    .siniestro-sub { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--gris); margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.08em; }
+
+    /* TIMELINE */
+    .timeline { position: relative; padding-left: 2rem; margin: 2rem 0; }
+    .timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: #1F2937; }
+    .tl-item { position: relative; margin-bottom: 2.5rem; }
+    .tl-item::before { content: ''; position: absolute; left: -2rem; top: 0.35rem; width: 8px; height: 8px; border-radius: 50%; background: var(--rojo); transform: translateX(-3.5px); }
+    .tl-year { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; color: var(--gris); text-transform: uppercase; }
+    .tl-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--crema); margin: 0.3rem 0; }
+    .tl-body { font-size: 0.85rem; color: #9CA3AF; line-height: 1.65; }
+
+    /* DIVISOR / FUENTES / FOOTER */
+    .divider { border: none; border-top: 1px solid #1F2937; margin: 0 2rem; }
+    .fuentes-block { padding: 3rem 2rem; max-width: 1100px; margin: 0 auto; }
+    .fuentes-block p { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: #4B5563; line-height: 1.9; letter-spacing: 0.03em; }
+    footer { border-top: 1px solid #1F2937; padding: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    footer p { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: #4B5563; text-transform: uppercase; letter-spacing: 0.1em; }
+
+    /* NOTA SIN DATO */
+    .sin-dato-banner {
+      background: rgba(232,52,26,0.06); border: 1px solid rgba(232,52,26,0.2);
+      padding: 1rem 1.25rem; margin: 1.5rem 0;
+      font-size: 0.8rem; color: #C0503A; line-height: 1.6;
+    }
+
+    @media (max-width: 600px) {
+      .hero-stat { gap: 1.5rem; }
+      .bar-label { min-width: 130px; font-size: 0.72rem; }
+      footer { flex-direction: column; align-items: flex-start; }
+      .topnav { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV STICKY -->
+<nav class="topnav">
+  <a href="#hero" class="topnav-brand">Santiago en Movimiento</a>
+  <a href="#modal">Distribución modal</a>
+  <a href="#tarifas">Tarifas</a>
+  <a href="#metro">Metro</a>
+  <a href="#seguridad">Seguridad vial</a>
+  <a href="#timeline">Evolución</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero" id="hero">
+  <div class="hero-topbar">
+    <span>Santiago · Transporte Público</span>
+    <span>Datos 2024–2026 · INE / DTPM / MTT / CONASET</span>
+  </div>
+  <div class="hero-center">
+    <p class="eyebrow">Estadísticas clave de movilidad urbana</p>
+    <h1>Santiago<em>en movimiento</em></h1>
+    <p class="hero-sub">
+      Más de <strong style="color:var(--crema)">5 millones de personas</strong> utilizan el transporte público cada día en la capital. Estos datos muestran cómo se mueve la ciudad, con rigor estadístico y lenguaje accesible.
+    </p>
+    <div class="hero-stat">
+      <div class="hero-stat-item">
+        <span class="hero-stat-num">54<span>%</span></span>
+        <span class="hero-stat-label">usa transporte público al trabajo · Censo INE 2024</span>
+      </div>
+      <div class="hero-stat-item">
+        <span class="hero-stat-num">660<span>M</span></span>
+        <span class="hero-stat-label">viajes en Metro durante 2025</span>
+      </div>
+      <div class="hero-stat-item">
+        <span class="hero-stat-num">55<span>%</span></span>
+        <span class="hero-stat-label">de la flota de buses es eléctrica · nov. 2025</span>
+      </div>
+    </div>
+  </div>
+  <p class="scroll-hint">↓ Desplaza para explorar los datos</p>
+</div>
+
+<!-- ═══ 01 DISTRIBUCIÓN MODAL ═══ -->
+<hr class="divider">
+<section id="modal">
+  <p class="section-label">01 — Distribución modal</p>
+  <h2>¿Cómo se mueve Santiago?</h2>
+  <p class="lead">
+    La <span class="glosario-pill" title="Reparto porcentual de los viajes entre los distintos medios de transporte disponibles">distribución modal</span> muestra que la movilidad sustentable domina ampliamente en la capital. Los datos combinan el Censo 2024 del INE (viajes al trabajo) con la Encuesta de Movilidad CEDEUS 2024 (viajes totales).
+  </p>
+
+  <div class="aviso-fuente">
+    ⚠ Nota metodológica: los porcentajes de la barra provienen de dos instrumentos distintos y no deben sumarse como un todo. El 54% corresponde a viajes al trabajo (Censo INE 2024); los demás a viajes totales diarios (CEDEUS 2024).
+  </div>
+
+  <div class="bar-chart">
+    <div class="bar-row">
+      <span class="bar-label">🚌 Transporte público (bus, Metro, tren)</span>
+      <div class="bar-track"><div class="bar-fill" style="width:54%;background:var(--rojo);"></div></div>
+      <span class="bar-pct">54% ¹</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">🚶 Caminata</span>
+      <div class="bar-track"><div class="bar-fill" style="width:30.4%;background:var(--cielo);"></div></div>
+      <span class="bar-pct">30,4% ²</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">🚗 Automóvil particular</span>
+      <div class="bar-track"><div class="bar-fill" style="width:31.7%;background:var(--gris);"></div></div>
+      <span class="bar-pct">31,7% ²</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">🏍 Motocicleta</span>
+      <div class="bar-track"><div class="bar-fill" style="width:1.8%;background:var(--amarillo);"></div></div>
+      <span class="bar-pct">1,8% ²</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">🚲 Bicicleta u otro</span>
+      <div class="bar-track"><div class="bar-fill" style="width:2%;background:var(--verde);"></div></div>
+      <span class="bar-pct">~2% ²</span>
+    </div>
+  </div>
+  <p style="font-size:0.75rem;color:var(--gris);line-height:1.7;">
+    ¹ Censo Nacional 2024, INE — viajes al trabajo, 27 de 34 comunas del Gran Santiago.<br>
+    ² Encuesta de Movilidad de Santiago CEDEUS (UC–UdeC) 2024, sobre 19,4 millones de viajes diarios totales.
+  </p>
+</section>
+
+<!-- ═══ 02 TARIFAS ═══ -->
+<hr class="divider">
+<section id="tarifas">
+  <p class="section-label">02 — Tarifas vigentes</p>
+  <h2>¿Cuánto cuesta viajar?</h2>
+  <p class="lead">
+    El sistema de Santiago opera una <span class="glosario-pill" title="Tarifa que permite combinar bus, Metro y tren en un mismo viaje pagando una sola vez, dentro de 120 minutos">tarifa integrada</span>: con un único pago podés viajar en bus, Metro y Tren Nos en hasta dos transbordos durante 120 minutos. Las tarifas vigentes rigen desde el 22 de febrero de 2026, ajustadas en $25 por el Panel de Expertos del Transporte Público.
+  </p>
+
+  <table class="tarifa-table">
+    <thead>
+      <tr>
+        <th>Perfil de usuario</th>
+        <th>Horario</th>
+        <th>Valor (Bus)</th>
+        <th>Valor (Metro / Tren)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong style="color:var(--crema)">Adulto</strong></td>
+        <td>Punta <span class="tarifa-badge badge-punta">07–08:59 / 18–19:59 h</span></td>
+        <td><span class="monto">$795</span></td>
+        <td><span class="monto punta">$895</span></td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--crema)">Adulto</strong></td>
+        <td>Valle <span class="tarifa-badge badge-valle">resto del día</span></td>
+        <td><span class="monto">$795</span></td>
+        <td><span class="monto valle">$815</span></td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--crema)">Adulto</strong></td>
+        <td>Baja <span class="tarifa-badge badge-baja">06–06:59 / 20:45–23 h</span></td>
+        <td><span class="monto">$795</span></td>
+        <td><span class="monto baja">$735</span></td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--crema)">Estudiante</strong> (enseñanza media y superior)</td>
+        <td>Todo horario, 7 días</td>
+        <td colspan="2"><span class="monto especial">$260</span></td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--crema)">Adulto mayor</strong> (integrado bip!)</td>
+        <td>Todo horario</td>
+        <td colspan="2"><span class="monto especial">$390</span></td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--crema)">Adulto mayor</strong> (TAM solo Metro)</td>
+        <td>Todo horario</td>
+        <td colspan="2"><span class="monto baja">$260</span></td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--crema)">Dale QR</strong> (tope mensual)</td>
+        <td>—</td>
+        <td colspan="2"><span class="monto especial">$42.000 / mes</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:0.75rem;color:var(--gris);line-height:1.7;">
+    Fuente: Panel de Expertos del Transporte Público, DTPM y Red Movilidad, feb. 2026.<br>
+    El <span class="glosario-pill" title="Beneficio que limita el gasto mensual en transporte público a un tope fijo, independiente de cuántos viajes se realicen">Dale QR</span> es un beneficio que limita el gasto mensual máximo; los viajes adicionales al tope son gratuitos.
+  </p>
+
+  <div style="margin-top:2rem;">
+    <div class="cards">
+      <div class="card">
+        <span class="card-tag">Contexto histórico</span>
+        <span class="card-num yellow">$270</span>
+        <span class="card-title">Descalce acumulado 2019–2023</span>
+        <p class="card-desc">Las tarifas estuvieron congeladas entre 2019 y 2023, generando un rezago de $270 que el sistema todavía está recuperando a través de ajustes anuales.</p>
+        <span class="card-fuente">Fuente: Panel de Expertos, comunicado feb. 2026</span>
+      </div>
+      <div class="card">
+        <span class="card-tag">Alzas 2024–2026</span>
+        <span class="card-num red">4+</span>
+        <span class="card-title">Ajustes tarifarios desde 2024</span>
+        <p class="card-desc">Hubo tres alzas durante 2024 y al menos una en 2025 y 2026, impulsadas por el alza del dólar, la inflación (3,5% anual) y el aumento del costo de mano de obra (6,7% anual).</p>
+        <span class="card-fuente">Fuente: DTPM / Cooperativa.cl / T13, 2025–2026</span>
+      </div>
+      <div class="card">
+        <span class="card-tag">Forma de pago</span>
+        <span class="card-num blue">3</span>
+        <span class="card-title">Modos de pago disponibles</span>
+        <p class="card-desc">Tarjeta bip!, código QR (App RED / BancoEstado) y recientemente tarjeta de crédito. El sistema es <span class="glosario-pill" title="Diseñado para ser usado por personas con distintas capacidades, incluyendo acceso para personas en silla de ruedas">accesible</span> y cuenta con cargadores USB y aire acondicionado en los buses nuevos.</p>
+        <span class="card-fuente">Fuente: Red Movilidad / DTPM, 2025</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 03 METRO ═══ -->
+<hr class="divider">
+<section id="metro">
+  <p class="section-label">03 — Metro de Santiago</p>
+  <h2>La red bajo tierra</h2>
+  <p class="lead">
+    El Metro de Santiago es la red de <span class="glosario-pill" title="Sistema ferroviario urbano que circula principalmente bajo tierra, con alta capacidad y frecuencias regulares">tránsito rápido</span> más extensa de Sudamérica y la segunda de América Latina. En 2025 cumplió 50 años desde la inauguración de la Línea 1.
+  </p>
+
+  <div class="cards" style="margin-bottom:2rem;">
+    <div class="card">
+      <span class="card-tag">Red actual</span>
+      <span class="card-num blue">7</span>
+      <span class="card-title">Líneas en operación</span>
+      <p class="card-desc">La red cuenta con 143 estaciones distribuidas en 149 km de extensión total. Es el séptimo sistema de metro más regular en frecuencia a nivel mundial.</p>
+      <span class="card-fuente">Fuente: DTPM / Metro de Santiago, 2024</span>
+    </div>
+    <div class="card">
+      <span class="card-tag">Demanda 2024</span>
+      <span class="card-num red">2,1M</span>
+      <span class="card-title">Pasajeros en un día laboral promedio</span>
+      <p class="card-desc">En 2024 se transportaron 2.146.206 pasajeros en día laboral. El <span class="glosario-pill" title="Máxima cantidad de pasajeros registrados en un solo día">récord histórico</span> fue el 3 de mayo de 2019: 2.951.962 pasajeros.</p>
+      <span class="card-fuente">Fuente: DTPM, 2024</span>
+    </div>
+    <div class="card">
+      <span class="card-tag">Total anual 2025</span>
+      <span class="card-num green">660M</span>
+      <span class="card-title">Viajes totales durante 2025</span>
+      <p class="card-desc">Metro superó los 660 millones de viajes durante 2025, acercándose a niveles históricos previos a la pandemia, según la Memoria Integrada 2025 del Metro.</p>
+      <span class="card-fuente">Fuente: Metro de Santiago, Memoria Integrada 2025 (jun. 2026)</span>
+    </div>
+    <div class="card">
+      <span class="card-tag">Puntualidad 2025</span>
+      <span class="card-num yellow">99%</span>
+      <span class="card-title">De la frecuencia programada cumplida</span>
+      <p class="card-desc">El Metro cumplió el 99% de su <span class="glosario-pill" title="Cantidad de trenes que circula por hora según el plan de operación previsto">frecuencia programada</span> en 2025, con un tiempo promedio de espera de 1 minuto y 40 segundos.</p>
+      <span class="card-fuente">Fuente: Metro de Santiago, Memoria 2025 (jun. 2026)</span>
+    </div>
+    <div class="card">
+      <span class="card-tag">Seguridad operacional 2025</span>
+      <span class="card-num green">−43,5%</span>
+      <span class="card-title">Reducción en tasa de incidentes internos</span>
+      <p class="card-desc">Los incidentes internos cayeron un 43,5% y los incidentes externos un 10% respecto a 2024, reflejando mejoras en mantenimiento y gestión de red.</p>
+      <span class="card-fuente">Fuente: Metro de Santiago, Memoria 2025 (jun. 2026)</span>
+    </div>
+    <div class="card">
+      <span class="card-tag">Nov. 2025</span>
+      <span class="card-num blue">57,7M</span>
+      <span class="card-title">Pasajeros ese mes</span>
+      <p class="card-desc">La <span class="glosario-pill" title="Total de validaciones registradas en el sistema en un período específico">afluencia mensual</span> de noviembre de 2025 fue de 57,7 millones de pasajeros, publicada por el INE.</p>
+      <span class="card-fuente">Fuente: INE, comunicado ene. 2026</span>
+    </div>
+  </div>
+
+  <p class="section-label" style="margin-top:3rem;">Líneas en operación</p>
+  <div class="lineas-grid">
+    <div class="linea-item" style="border-color:#E5001C;">
+      <span class="linea-num">L1</span>
+      <span class="linea-info">San Pablo → Neptuno · 27 estaciones · 20,6 km · Inaugurada 1975</span>
+      <span class="linea-km">En renovación: instalación de puertas de andén en 2025</span>
+    </div>
+    <div class="linea-item" style="border-color:#F5A800;">
+      <span class="linea-num">L2</span>
+      <span class="linea-info">El Bosque → Américo Vespucio · 24 estaciones · Extensión sur 2023</span>
+      <span class="linea-km">Incluye Hospital El Pino, copa Lo Martínez, Observatorio</span>
+    </div>
+    <div class="linea-item" style="border-color:#8C6239;">
+      <span class="linea-num">L3</span>
+      <span class="linea-info">Plaza Quilicura → Fernando Castillo Velasco · 21 est. · 25 km</span>
+      <span class="linea-km">Inaugurada 2019, extensión norte 2023 — color café</span>
+    </div>
+    <div class="linea-item" style="border-color:#1B9AD1;">
+      <span class="linea-num">L4 / L4A</span>
+      <span class="linea-info">Tobalaba → Puente Alto / Vicuña Mackenna · 23 estaciones</span>
+      <span class="linea-km">Ramificación que conecta sector oriente y Puente Alto</span>
+    </div>
+    <div class="linea-item" style="border-color:#00A550;">
+      <span class="linea-num">L5</span>
+      <span class="linea-info">Vicente Valdés → Plaza de Maipú · 24 estaciones</span>
+      <span class="linea-km">Conecta sector oriente con poniente, pasando por el centro</span>
+    </div>
+    <div class="linea-item" style="border-color:#9E1C72;">
+      <span class="linea-num">L6</span>
+      <span class="linea-info">Cerrillos → Los Leones · 10 estaciones · En extensión a Isidora Goyenechea</span>
+      <span class="linea-km">Extensión programada para 2028 (combinará con L7)</span>
+    </div>
+  </div>
+
+  <p class="section-label" style="margin-top:3rem;">Expansión futura de la red</p>
+  <div class="cards">
+    <div class="card">
+      <span class="card-tag">En construcción · 39% avance</span>
+      <span class="card-num orange">L7</span>
+      <span class="card-title">Brasil → Estoril · 19 estaciones · 24,8 km · 2028</span>
+      <p class="card-desc">Conectará por primera vez Cerro Navia y Renca con el sector oriente. Beneficiará a 1,6 millones de personas. El tiempo Renca–Vitacura bajará más del 50%. Al junio 2026 lleva más de 16 km de túnel excavados.</p>
+      <span class="card-fuente">Fuente: Metro de Santiago, Memoria 2025</span>
+    </div>
+    <div class="card">
+      <span class="card-tag">Aprobación ambiental · 2028+</span>
+      <span class="card-num blue">L8</span>
+      <span class="card-title">Providencia → Puente Alto · 14 estaciones · 19 km</span>
+      <p class="card-desc">Unirá Providencia, Ñuñoa, Macul, La Florida y Puente Alto. El viaje tomará 23 minutos, reduciendo un 59% el tiempo actual. Beneficiará a 1,9 millones de personas.</p>
+      <span class="card-fuente">Fuente: CNN Chile / BioBioChile, 2025</span>
+    </div>
+    <div class="card">
+      <span class="card-tag">En construcción (tramos 1 y 2)</span>
+      <span class="card-num green">L9</span>
+      <span class="card-title">Cal y Canto → La Pintana · 19 estaciones · 27 km</span>
+      <p class="card-desc">Cubrirá Recoleta, San Joaquín, La Pintana y San Ramón. Reducirá los tiempos de traslado actuales en un 28%. Su primera etapa (14,3 km hasta La Pintana) estaría lista en 2030.</p>
+      <span class="card-fuente">Fuente: BioBioChile / La Tercera, 2024–2025</span>
+    </div>
+  </div>
+
+  <div class="aviso-fuente" style="margin-top:2rem;">
+    ⚠ Limitación de datos: no existen datos públicos detallados y actualizados sobre frecuencias por horario y por línea de Metro disponibles en fuentes abiertas. La cifra de 1 minuto 40 segundos de espera promedio proviene de la Memoria Integrada 2025 del propio Metro. Para datos en tiempo real se recomienda consultar la app oficial del Metro o el sitio metro.cl.
+  </div>
+</section>
+
+<!-- ═══ 04 COMUNAS ═══ -->
+<hr class="divider">
+<section>
+  <p class="section-label">04 — Desigualdad territorial</p>
+  <h2>El transporte público según la comuna</h2>
+  <p class="lead">
+    La <span class="glosario-pill" title="Variación del uso de transporte público según la ubicación geográfica dentro de la ciudad">heterogeneidad espacial</span> es uno de los rasgos más marcados del sistema. Las comunas populares del poniente y sur muestran altísima dependencia del transporte público; las del sector oriente dependen principalmente del automóvil.
+  </p>
+  <div class="comunas-grid">
+    <div class="comuna-item"><span class="comuna-name">Estación Central</span><span class="comuna-pct alta">+60%</span><div class="comuna-micro alta" style="width:100%"></div></div>
+    <div class="comuna-item"><span class="comuna-name">Lo Prado</span><span class="comuna-pct alta">+60%</span><div class="comuna-micro alta" style="width:100%"></div></div>
+    <div class="comuna-item"><span class="comuna-name">La Pintana</span><span class="comuna-pct alta">+60%</span><div class="comuna-micro alta" style="width:100%"></div></div>
+    <div class="comuna-item"><span class="comuna-name">Independencia</span><span class="comuna-pct alta">+60%</span><div class="comuna-micro alta" style="width:100%"></div></div>
+    <div class="comuna-item"><span class="comuna-name">Gran Santiago (prom.)</span><span class="comuna-pct media">54%</span><div class="comuna-micro media" style="width:90%"></div></div>
+    <div class="comuna-item"><span class="comuna-name">Las Condes</span><span class="comuna-pct baja">~48%</span><div class="comuna-micro baja" style="width:78%"></div></div>
+    <div class="comuna-item"><span class="comuna-name">La Reina</span><span class="comuna-pct baja">49%</span><div class="comuna-micro baja" style="width:80%"></div></div>
+    <div class="comuna-item"><span class="comuna-name">Vitacura</span><span class="comuna-pct baja">31%</span><div class="comuna-micro baja" style="width:50%"></div></div>
+    <div class="comuna-item"><span class="comuna-name">Lo Barnechea</span><span class="comuna-pct baja">30%</span><div class="comuna-micro baja" style="width:48%"></div></div>
+  </div>
+  <p style="font-size:0.78rem;color:var(--gris);margin-top:0.5rem;">
+    <span style="color:var(--rojo)">■</span> +60% transporte público &nbsp;
+    <span style="color:var(--cielo)">■</span> Promedio 54% &nbsp;
+    <span style="color:var(--gris)">■</span> Alta dependencia del auto particular<br>
+    Fuente: Censo Nacional 2024, INE.
+  </p>
+</section>
+
+<!-- ═══ 05 SEGURIDAD VIAL ═══ -->
+<hr class="divider">
+<section id="seguridad">
+  <p class="section-label">05 — Seguridad vial</p>
+  <h2>Siniestralidad en el tránsito</h2>
+  <p class="lead">
+    Los <span class="glosario-pill" title="Término técnico oficial que reemplaza a 'accidente', reconociendo que la mayoría tienen causas prevenibles y no son fortuitos">siniestros viales</span> afectan a todos los usuarios de la vía pública, incluyendo pasajeros y conductores del transporte público. En 2024 Chile registró la menor cifra histórica de fallecidos.
+  </p>
+
+  <div class="siniestro-grid">
+    <div class="siniestro-card">
+      <div class="siniestro-num" style="color:var(--rojo)">75.653</div>
+      <div class="siniestro-label">Siniestros de tránsito en Chile durante 2024</div>
+      <div class="siniestro-sub">Fuente: CONASET / Carabineros 2024</div>
+    </div>
+    <div class="siniestro-card">
+      <div class="siniestro-num" style="color:var(--amarillo)">1.438</div>
+      <div class="siniestro-label">Personas fallecidas en vías en 2024</div>
+      <div class="siniestro-sub">Menor cifra histórica desde que existe estadística</div>
+    </div>
+    <div class="siniestro-card">
+      <div class="siniestro-num" style="color:var(--verde)">−12%</div>
+      <div class="siniestro-label">Reducción de fallecidos respecto a 2023 (1.633)</div>
+      <div class="siniestro-sub">Fuente: MTT / CONASET, ene. 2025</div>
+    </div>
+    <div class="siniestro-card">
+      <div class="siniestro-num" style="color:var(--cielo)">4</div>
+      <div class="siniestro-label">Fallecidos diarios promedio en 2024 (vs 5 en 2023)</div>
+      <div class="siniestro-sub">Fuente: Ministerio de Transportes, ene. 2025</div>
+    </div>
+  </div>
+
+  <div class="sin-dato-banner">
+    ⚠ <strong>Límite de datos disponibles:</strong> CONASET publica estadísticas de siniestralidad vial general (todos los vehículos), pero no desglosa de forma abierta los datos específicos de siniestros donde participa transporte público (buses RED, Metro). Para ese nivel de detalle sería necesario solicitar los microdatos al Observatorio de Seguridad Vial de CONASET o a Carabineros de Chile directamente.
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <span class="card-tag">Región Metropolitana · 2024</span>
+      <span class="card-num red">~40%</span>
+      <span class="card-title">De los siniestros nacionales se dan en la RM</span>
+      <p class="card-desc">La Región Metropolitana concentra una proporción significativa de los siniestros totales del país, dado que es donde se concentra la mayor <span class="glosario-pill" title="Cantidad de vehículos que circulan por una vía en un período determinado">densidad de tráfico</span> y población.</p>
+      <span class="card-fuente">Fuente: estimación basada en datos CONASET históricos</span>
+    </div>
+    <div class="card">
+      <span class="card-tag">Tendencia 2026</span>
+      <span class="card-num yellow">+84%</span>
+      <span class="card-title">Aumento de accidentes en scooter desde 2024</span>
+      <p class="card-desc">Según datos de la ACHS, los siniestros de trayecto en scooter crecieron un 84% desde 2024. La Región Metropolitana concentra el 76,8% de estos casos a nivel nacional.</p>
+      <span class="card-fuente">Fuente: ACHS / CONASET, mayo 2026</span>
+    </div>
+    <div class="card">
+      <span class="card-tag">Contexto CO₂</span>
+      <span class="card-num green">3,3%</span>
+      <span class="card-title">Emisiones CO₂ del transporte público en 2023</span>
+      <p class="card-desc">El transporte público generó solo el 3,3% de las <span class="glosario-pill" title="Gases que contribuyen al calentamiento global, medidos en unidades equivalentes de CO₂">emisiones de CO₂ equivalente</span>. Los autos y motos concentraron cerca del 90%.</p>
+      <span class="card-fuente">Fuente: MTT / DTPM, 2024</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 06 TIMELINE ═══ -->
+<hr class="divider">
+<section id="timeline">
+  <p class="section-label">06 — Evolución histórica</p>
+  <h2>La transformación del sistema</h2>
+  <p class="lead">
+    La <span class="glosario-pill" title="Cambio progresivo y medible de un sistema a lo largo del tiempo">trayectoria temporal</span> del transporte público de Santiago muestra un proceso de modernización sostenido, marcado por la electromovilidad y la expansión de la red de Metro.
+  </p>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <span class="tl-year">1975</span>
+      <p class="tl-title">Inauguración de la Línea 1 del Metro</p>
+      <p class="tl-body">El Metro de Santiago inicia operaciones. En 2025 celebró sus 50 años, año en que comenzó la instalación de puertas de andén en todas sus 27 estaciones.</p>
+    </div>
+    <div class="tl-item">
+      <span class="tl-year">2007</span>
+      <p class="tl-title">Nace el sistema integrado (Transantiago)</p>
+      <p class="tl-body">Se implementa la <span class="glosario-pill" title="Tarifa única que permite combinar distintos medios de transporte con un solo pago">tarifa integrada</span> que unifica buses y Metro bajo un mismo pago con la Tarjeta bip!</p>
+    </div>
+    <div class="tl-item">
+      <span class="tl-year">2012</span>
+      <p class="tl-title">15 millones de viajes diarios en la RM</p>
+      <p class="tl-body">Línea base de la Encuesta Origen-Destino. La caminata representaba el 33% de los viajes y el automóvil el 27,6%.</p>
+    </div>
+    <div class="tl-item">
+      <span class="tl-year">2019 — oct.</span>
+      <p class="tl-title">Estallido social: alza de $30 paraliza el sistema</p>
+      <p class="tl-body">Un aumento de $30 en la tarifa punta del Metro fue el detonante del estallido social del 18 de octubre de 2019. Las tarifas fueron congeladas hasta 2023, acumulando un rezago de $270.</p>
+    </div>
+    <div class="tl-item">
+      <span class="tl-year">2023</span>
+      <p class="tl-title">Transporte público emite solo 3,3% del CO₂ del sector</p>
+      <p class="tl-body">Los autos y motos concentran el ~90% de las emisiones de CO₂ del sector transporte. Se extiende la Línea 3 a Quilicura y la Línea 2 al sector sur (El Bosque, San Bernardo).</p>
+    </div>
+    <div class="tl-item">
+      <span class="tl-year">2024 — enero</span>
+      <p class="tl-title">2.480 buses eléctricos · Ciudad líder mundial fuera de China</p>
+      <p class="tl-body">Santiago supera ese umbral y se consolida como la ciudad fuera de China con mayor flota eléctrica de buses. Se inician 3 alzas tarifarias durante el año.</p>
+    </div>
+    <div class="tl-item">
+      <span class="tl-year">2024 — Censo INE</span>
+      <p class="tl-title">54% usa transporte público para ir al trabajo</p>
+      <p class="tl-body">Primera vez que el Censo incorpora pregunta sobre modo de transporte al trabajo. 27 de 34 comunas del Gran Santiago muestran al transporte público como medio principal.</p>
+    </div>
+    <div class="tl-item">
+      <span class="tl-year">2024 — CEDEUS</span>
+      <p class="tl-title">19,4 millones de viajes diarios en la RM</p>
+      <p class="tl-body">Aumento del 29% respecto a 2012. Los viajes en auto pasaron de 4,1 a 6,1 millones, evidenciando el crecimiento de la motorización privada.</p>
+    </div>
+    <div class="tl-item">
+      <span class="tl-year">2025</span>
+      <p class="tl-title">Metro: 660M de viajes · 99% frecuencia · 55% flota eléctrica</p>
+      <p class="tl-body">El Metro supera los 660 millones de viajes anuales. La flota de buses eléctricos llega a 3.544 unidades (55%). La Línea 7 alcanza 39% de avance físico con más de 16 km de túnel excavados.</p>
+    </div>
+    <div class="tl-item">
+      <span class="tl-year">Feb. 2026</span>
+      <p class="tl-title">Tarifa adulto punta llega a $895</p>
+      <p class="tl-body">Nuevo ajuste de $25 por el Panel de Expertos. Bus queda en $795, Metro punta en $895. El tope mensual Dale QR sube a $42.000.</p>
+    </div>
+    <div class="tl-item">
+      <span class="tl-year">2028 (proyección)</span>
+      <p class="tl-title">Apertura Línea 7 y extensión Línea 6</p>
+      <p class="tl-body">24,8 km y 19 estaciones nuevas unirán Renca y Cerro Navia con Vitacura y el oriente. La red total alcanzará ~225 km y 197 estaciones al 2033.</p>
+    </div>
+    <div class="tl-item">
+      <span class="tl-year">2030–2033 (proyección)</span>
+      <p class="tl-title">Líneas 8, 9 y red expandida a 225 km</p>
+      <p class="tl-body">La Línea 9 (Cal y Canto → La Pintana, primer tramo 2030) y la Línea 8 (Providencia–Puente Alto) completarán la mayor expansión de infraestructura de Metro en la historia de Santiago.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FUENTES -->
+<hr class="divider">
+<div class="fuentes-block">
+  <p>
+    FUENTES UTILIZADAS:<br><br>
+    · Instituto Nacional de Estadísticas (INE) — Censo Nacional 2024, Informe de personas transportadas por Metro, ene. 2026.<br>
+    · Directorio de Transporte Público Metropolitano (DTPM) — Tarifas vigentes, estadísticas Metro, feb. 2026.<br>
+    · Ministerio de Transportes y Telecomunicaciones (MTT) — Comunicados de prensa 2024–2026.<br>
+    · Red Movilidad (red.cl) — Información de flota eléctrica, tarifas y recorridos, 2024–2026.<br>
+    · Metro de Santiago — Memoria Integrada 2025, publicada junio 2026.<br>
+    · CEDEUS (UC–UdeC) — Encuesta de Movilidad de Santiago 2024.<br>
+    · CONASET — Observatorio de Seguridad Vial, Informe Nacional Siniestros 2024.<br>
+    · Panel de Expertos del Transporte Público — Resolución tarifaria feb. 2026.<br>
+    · ACHS — Estadísticas accidentes de trayecto en scooter, mayo 2026.<br><br>
+    AVISO: Esta página presenta datos de fuentes oficiales con la mayor fidelidad posible. Donde los datos no están disponibles en forma abierta, se indica explícitamente. No se han inventado cifras ni se han extrapolado sin indicarlo.
+  </p>
+</div>
+
+<footer>
+  <p>Santiago en Movimiento · Estadísticas de Transporte Público</p>
+  <p>Datos al año 2025–2026 · INE · DTPM · MTT · Metro · CONASET · CEDEUS</p>
+</footer>
+
+</body>
+</html>

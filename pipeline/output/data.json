@@ -1,0 +1,282 @@
+{
+  "gtfs_version": "V149.20251206",
+  "gtfs_start": "20251206",
+  "gtfs_end": "20251231",
+  "rutas_bus": 412,
+  "rutas_metro": 13,
+  "paradas_total": 13054,
+  "metro_lines": [
+    {
+      "id": "L1",
+      "nombre": "Línea 1 (San Pablo - Los Dominicos) ",
+      "punta_min": 3.9,
+      "color": "#C8102E"
+    },
+    {
+      "id": "L2",
+      "nombre": "Línea 2 (Vespucio Norte - Hospital El Pino) ",
+      "punta_min": 5.5,
+      "color": "#F2A900"
+    },
+    {
+      "id": "L2",
+      "nombre": "Línea 2 Ruta Roja (Expreso Vespucio Norte - Hospital El Pino) ",
+      "punta_min": 3.0,
+      "color": "#F2A900"
+    },
+    {
+      "id": "L2",
+      "nombre": "Línea 2 Ruta Verde (Expreso Vespucio Norte - Hospital El Pino) ",
+      "punta_min": 3.0,
+      "color": "#F2A900"
+    },
+    {
+      "id": "L3",
+      "nombre": "Línea 3 (Plaza Quilicura - Fernando Castillo Velasco)",
+      "punta_min": 5.5,
+      "color": "#703F2A"
+    },
+    {
+      "id": "L4",
+      "nombre": "Línea 4 (Tobalaba - Plaza de Puente Alto) ",
+      "punta_min": 6.1,
+      "color": "#151F6D"
+    },
+    {
+      "id": "L4A",
+      "nombre": "Línea 4A (La Cisterna - Vicuña Mackenna) ",
+      "punta_min": 5.5,
+      "color": "#0072CE"
+    },
+    {
+      "id": "L4",
+      "nombre": "Línea 4 Ruta Roja (Expreso Tobalaba - Plaza de Puente Alto) ",
+      "punta_min": 2.9,
+      "color": "#151F6D"
+    },
+    {
+      "id": "L4",
+      "nombre": "Línea 4 Ruta Verde (Expreso Tobalaba - Plaza de Puente Alto) ",
+      "punta_min": 2.9,
+      "color": "#151F6D"
+    },
+    {
+      "id": "L5",
+      "nombre": "Línea 5 (Plaza de Maipú - Vicente Valdés) ",
+      "punta_min": 5.5,
+      "color": "#00965E"
+    },
+    {
+      "id": "L5",
+      "nombre": "Línea 5 Ruta Roja (Expreso Plaza de Maipú - Vicente Valdés) ",
+      "punta_min": 2.7,
+      "color": "#00965E"
+    },
+    {
+      "id": "L5",
+      "nombre": "Línea 5 Ruta Verde (Expreso Plaza de Maipú - Vicente Valdés) ",
+      "punta_min": 2.7,
+      "color": "#00965E"
+    },
+    {
+      "id": "L6",
+      "nombre": "Línea 6 (Cerrillos - Los Leones)",
+      "punta_min": 6.3,
+      "color": "#8E3A80"
+    }
+  ],
+  "periodos_bus": [
+    {
+      "periodo": "Madrugada",
+      "horario": "05:00–07:00",
+      "avg": 16.8,
+      "mediana": 15.0,
+      "n": 2905
+    },
+    {
+      "periodo": "Punta AM",
+      "horario": "07:00–09:00",
+      "avg": 16.2,
+      "mediana": 13.2,
+      "n": 1221
+    },
+    {
+      "periodo": "Valle",
+      "horario": "09:00–18:00",
+      "avg": 14.6,
+      "mediana": 12.5,
+      "n": 4626
+    },
+    {
+      "periodo": "Punta PM",
+      "horario": "18:00–20:00",
+      "avg": 16.6,
+      "mediana": 15.0,
+      "n": 1770
+    },
+    {
+      "periodo": "Nocturno",
+      "horario": "20:00–23:30",
+      "avg": 23.1,
+      "mediana": 20.0,
+      "n": 2362
+    }
+  ],
+  "top_rutas": [
+    {
+      "id": "211c",
+      "nombre": "(M) La Cisterna - San Bernardo",
+      "freq": 5.3,
+      "tiene_metro": true
+    },
+    {
+      "id": "C10e",
+      "nombre": "(M) Tobalaba - Camino Juan Pablo Ii",
+      "freq": 5.3,
+      "tiene_metro": true
+    },
+    {
+      "id": "203c",
+      "nombre": "La Pintana - La Granja",
+      "freq": 6.0,
+      "tiene_metro": false
+    },
+    {
+      "id": "C20",
+      "nombre": "(M) Escuela Militar - Parque Arauco",
+      "freq": 6.3,
+      "tiene_metro": true
+    },
+    {
+      "id": "208c",
+      "nombre": "Huechuraba - (M) Zapadores",
+      "freq": 6.4,
+      "tiene_metro": false
+    },
+    {
+      "id": "203e",
+      "nombre": "Centro - La Pintana",
+      "freq": 7.0,
+      "tiene_metro": false
+    },
+    {
+      "id": "C14",
+      "nombre": "(M) Escuela Militar - Los Trapenses",
+      "freq": 7.7,
+      "tiene_metro": true
+    },
+    {
+      "id": "104",
+      "nombre": "Providencia - Camilo Henriquez",
+      "freq": 7.8,
+      "tiene_metro": false
+    },
+    {
+      "id": "425",
+      "nombre": "Rigoberto Jara - Lo Hermida",
+      "freq": 7.9,
+      "tiene_metro": false
+    },
+    {
+      "id": "I09",
+      "nombre": "Rinconada - (M) U. De Chile",
+      "freq": 8.0,
+      "tiene_metro": false
+    }
+  ],
+  "serie_metro": [
+    {
+      "mes": "Ene 2024",
+      "m": 48.2
+    },
+    {
+      "mes": "Feb 2024",
+      "m": 45.1
+    },
+    {
+      "mes": "Mar 2024",
+      "m": 52.3
+    },
+    {
+      "mes": "Abr 2024",
+      "m": 51.0
+    },
+    {
+      "mes": "May 2024",
+      "m": 53.4
+    },
+    {
+      "mes": "Jun 2024",
+      "m": 52.1
+    },
+    {
+      "mes": "Jul 2024",
+      "m": 50.8
+    },
+    {
+      "mes": "Ago 2024",
+      "m": 53.9
+    },
+    {
+      "mes": "Sep 2024",
+      "m": 54.2
+    },
+    {
+      "mes": "Oct 2024",
+      "m": 55.8
+    },
+    {
+      "mes": "Nov 2024",
+      "m": 56.9
+    },
+    {
+      "mes": "Dic 2024",
+      "m": 51.3
+    },
+    {
+      "mes": "Ene 2025",
+      "m": 50.1
+    },
+    {
+      "mes": "Feb 2025",
+      "m": 47.8
+    },
+    {
+      "mes": "Mar 2025",
+      "m": 55.2
+    },
+    {
+      "mes": "Abr 2025",
+      "m": 54.6
+    },
+    {
+      "mes": "May 2025",
+      "m": 57.1
+    },
+    {
+      "mes": "Jun 2025",
+      "m": 55.9
+    },
+    {
+      "mes": "Jul 2025",
+      "m": 53.4
+    },
+    {
+      "mes": "Ago 2025",
+      "m": 56.3
+    },
+    {
+      "mes": "Sep 2025",
+      "m": 57.0
+    },
+    {
+      "mes": "Oct 2025",
+      "m": 62.2
+    },
+    {
+      "mes": "Nov 2025",
+      "m": 57.7
+    }
+  ],
+  "generado_en": "2026-06-14T09:00:59Z"
+}

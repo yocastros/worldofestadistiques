@@ -1,0 +1,73 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# GitHub Actions: Pipeline automático GTFS — Santiago en Movimiento
+#
+# Qué hace:
+#   1. Se ejecuta cada lunes a las 06:00 UTC (03:00 hora Chile)
+#   2. Descarga el GTFS vigente del DTPM (vía repo espejo en GitHub)
+#   3. Si el archivo cambió (checksum distinto), regenera data.json
+#   4. Hace commit del data.json actualizado al mismo repo
+#   5. El frontend consume data.json directamente vía raw.githubusercontent.com
+#
+# Disparo manual: GitHub → Actions → "Actualizar datos GTFS" → Run workflow
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Actualizar datos GTFS
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # Cada lunes 06:00 UTC (03:00 hora Santiago)
+  workflow_dispatch:       # Disparo manual desde GitHub UI
+
+permissions:
+  contents: write          # Necesario para hacer commit automático
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: pip install requests
+
+      - name: Ejecutar extractor GTFS
+        id: extractor
+        run: |
+          python pipeline/gtfs_extractor.py
+          # Detectar si data.json fue modificado
+          if git diff --quiet pipeline/output/data.json 2>/dev/null; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "Sin cambios en el GTFS."
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "GTFS actualizado — haciendo commit."
+          fi
+
+      - name: Commit y push si hubo cambios
+        if: steps.extractor.outputs.changed == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pipeline/output/data.json pipeline/output/.gtfs_state.json
+          git commit -m "chore(data): actualizar GTFS — $(date -u +%Y-%m-%d)"
+          git push
+
+      - name: Resumen de la ejecución
+        run: |
+          python3 -c "
+          import json
+          with open('pipeline/output/data.json') as f:
+              d = json.load(f)
+          print(f'  GTFS versión : {d[\"gtfs_version\"]}')
+          print(f'  Generado     : {d[\"generado_en\"]}')
+          print(f'  Rutas bus    : {d[\"rutas_bus\"]}')
+          print(f'  Rutas Metro  : {d[\"rutas_metro\"]}')
+          print(f'  Paradas      : {d[\"paradas_total\"]}')
+          "
